@@ -5,7 +5,7 @@
 ## Features
 
 - Parses uncompressed / compressed - as a whole or per record - WebArchive (WARC) version 1.0 / 1.1 files
-- Throws exception and terminates, or suppresses and resumes, upon encountering malformed content
+- Option to terminate or resume processing upon encountering malformed content
 - Creates WARC records with auto-generated `WARC-Block-Digest` / `WARC-Payload-Digest` using configurable hash algorithm
 
 ## Quick Start
