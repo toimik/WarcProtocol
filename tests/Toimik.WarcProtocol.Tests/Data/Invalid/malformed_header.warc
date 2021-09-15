@@ -1,0 +1,136 @@
+warc
+
+
+arc/1.1
+
+
+warc/0.9
+
+
+warc/1.1/foo
+
+
+warc/1.1 
+this is an invalid header format
+
+
+warc/1.1 
+:missing header
+
+
+warc/1.1 
+ this value has no corresponding field
+
+
+warc/1.1 
+WARC-Record-ID: <urn:uuid:6a59c5c8-d806-4cdb-83aa-b21495d11063>
+WARC-Record-ID: <urn:uuid:6a59c5c8-d806-4cdb-83aa-b21495d11063>
+WARC-Record-ID: <urn:uuid:1a59c5c8-d806-4cdb-83aa-b21495d11063>
+
+
+warc/1.1 
+Content-Length: 0
+Content-Length: 0
+Content-Length: 1
+
+
+warc/1.1 
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-Date: 2001-01-01T12:34:56Z
+
+
+warc/1.1 
+WARC-Type: continuation
+WARC-Type: continuation
+WARC-Type: metadata
+
+
+warc/1.1 
+Content-Type: text/plain
+Content-Type: text/plain
+Content-Type: text/html
+
+
+warc/1.1 
+WARC-Block-Digest: sha1:39D239C827E961FF99804476B5AE78326B2FD0D7
+WARC-Block-Digest: sha1:39D239C827E961FF99804476B5AE78326B2FD0D7
+WARC-Block-Digest: sha1:49D239C827E961FF99804476B5AE78326B2FD0D7
+
+
+warc/1.1 
+WARC-Payload-Digest: sha1:F285EED50B60E835CB4E820B8978370E3A474999
+WARC-Payload-Digest: sha1:F285EED50B60E835CB4E820B8978370E3A474999
+WARC-Payload-Digest: sha1:G285EED50B60E835CB4E820B8978370E3A474999
+
+
+warc/1.1 
+WARC-IP-Address: 1.23.45.67
+WARC-IP-Address: 1.23.45.67
+WARC-IP-Address: 2.23.45.67
+
+
+warc/1.1 
+WARC-Refers-To: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Refers-To: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Refers-To: <urn:uuid:B6ddea17-518c-44d7-8d34-77f8ef0d0890>
+
+
+warc/1.1 
+WARC-Refers-To-Target-URI: http://www.example.com
+WARC-Refers-To-Target-URI: http://www.example.com
+WARC-Refers-To-Target-URI: https://www.example.com
+
+
+warc/1.1 
+WARC-Refers-To-Date: 2000-01-01T12:34:56Z
+WARC-Refers-To-Date: 2000-01-01T12:34:56Z
+WARC-Refers-To-Date: 2001-01-01T12:34:56Z
+
+
+warc/1.1 
+WARC-Target-URI: http://www.example.com
+WARC-Target-URI: http://www.example.com
+WARC-Target-URI: https://www.example.com
+
+
+warc/1.1 
+WARC-Truncated: disconnect
+WARC-Truncated: disconnect
+WARC-Truncated: time
+
+
+warc/1.1 
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Warcinfo-ID: <urn:uuid:c92e8444-34cf-472f-a86e-07b7845ecc05>
+
+
+warc/1.1 
+WARC-Filename: warcinfo.warc
+WARC-Filename: warcinfo.warc
+WARC-Filename: arcinfo.warc
+
+
+warc/1.1 
+WARC-Profile: http://netpreserve.org/warc/1.1/revisit/identical-payload-digest
+WARC-Profile: http://netpreserve.org/warc/1.1/revisit/identical-payload-digest
+WARC-Profile: http://netpreserve.org/warc/1.1/revisit/server-not-modified
+
+
+warc/1.1 
+WARC-Segment-Number: 2
+WARC-Segment-Number: 2
+WARC-Segment-Number: 3
+
+
+warc/1.1 
+WARC-Segment-Origin-ID: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Segment-Origin-ID: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Segment-Origin-ID: <urn:uuid:b6ddea17-518c-44d7-8d34-77f8ef0d0890>
+
+
+warc/1.1 
+WARC-Segment-Total-Length: 2
+WARC-Segment-Total-Length: 2
+WARC-Segment-Total-Length: 3

@@ -1,0 +1,24 @@
+WARC/1.1
+WARC-Block-Digest: sha1:241E0040D1186D236DFC2DDCC80BD712DE038268
+WARC-Concurrent-To: <urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221>
+WARC-Date: 2002-03-01T03:45:06Z
+WARC-IP-Address: 1.23.45.67
+WARC-Profile: http://netpreserve.org/warc/1.1/revisit/server-not-modified
+WARC-Record-ID: <urn:uuid:e8381eac-7fdf-4b53-ad69-6943472920f9>
+WARC-Refers-To: <urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221>
+WARC-Refers-To-Date: 2000-01-01T12:34:56Z
+WARC-Refers-To-Target-URI: http://www.example.com
+WARC-Target-URI: http://www.example.com
+WARC-Type: revisit
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+Content-Length: 198
+Content-Type: message/http
+WARC-Truncated: foobar
+
+HTTP/1.x 304 Not Modified
+Date: Tue, 06 May 2011 00:41:31 GMT
+Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 Connection: Keep-Alive
+Keep-Alive: timeout=10, max=100
+ETag: "1e41-61e-1ed021c1"
+
+

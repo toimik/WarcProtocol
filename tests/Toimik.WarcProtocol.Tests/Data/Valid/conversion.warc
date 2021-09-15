@@ -1,0 +1,20 @@
+WARC/1.1
+WARC-Block-Digest: sha1:14688051DB31569CB48D9C36C818B593A5228916
+WARC-Payload-Digest: sha1:14688051DB31569CB48D9C36C818B593A5228916
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-Record-ID: <urn:uuid:07d18ee8-5a5e-43e1-9ff9-320a994141fd>
+WARC-Refers-To: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Target-URI: file://var/www/htdoc/robots.txt
+WARC-Type: conversion
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Identified-Payload-Type: text/plain
+Content-Length: 41
+Content-Type: text/plain
+WARC-Segment-Number: 1
+WARC-Truncated: foobar
+
+User-agent: *
+Disallow: /a
+Disallow: /b
+
+

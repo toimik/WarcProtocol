@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>Toimik.WarcProtocol</AssemblyName>
+    <PackageVersion>0.1.0</PackageVersion>
+    <Authors>Nurhafiz</Authors>
+    <Version>0.1.0</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Company>Toimik</Company>
+    <Description>
+      Parser for WARC (aka WebArchive) files.
+
+      Visit Project Site for documentation.
+    </Description>
+    <Copyright>nurhafiz@hotmail.sg</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/toimik/WarcProtocol</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/toimik/WarcProtocol.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>warc webarchive web-archiving web-archives warc-files warc-record warc-format warc-reader</PackageTags>
+    <Product>WarcProtocol</Product>
+  </PropertyGroup>
+</Project>
