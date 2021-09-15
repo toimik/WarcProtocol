@@ -90,6 +90,11 @@ class Program
 
                     // ...
                     break;
+
+                case "custom-type":
+
+                    // ...
+                    break;
             }
         }
     }
