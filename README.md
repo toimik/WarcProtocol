@@ -82,11 +82,13 @@ class Program
                     break;
 
                 case "revisit":
+                    Console.WriteLine(((RevisitRecord) record).Profile);
 
                     // ...
                     break;
 
                 case "warcinfo":
+                    Console.WriteLine(((WarcinfoRecord) record).Filename);
 
                     // ...
                     break;
