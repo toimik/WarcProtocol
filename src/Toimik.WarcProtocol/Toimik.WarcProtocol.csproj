@@ -9,7 +9,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Company>Toimik</Company>
     <Description>
-      Parser for WARC (aka WebArchive) files.
+      Parser for WARC (aka Web ARChive) files.
 
       Visit Project Site for documentation.
     </Description>
