@@ -37,7 +37,7 @@ namespace Toimik.WarcProtocol
 
         public const string FieldForTargetUri = "warc-target-uri";
 
-        internal static readonly IList<string> DefaultOrderedFields = new List<string>
+        internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
         {
             FieldForType,
             FieldForRecordId,

@@ -806,7 +806,7 @@
 
         private static List<string> AssertHeaderAndToString(
             WarcProtocol.Record record,
-            IList<string> defaultOrderedFields,
+            IEnumerable<string> defaultOrderedFields,
             bool hasIgnoredIdentifiedPayloadType = false)
         {
             var expectedHeader = record.GetHeader();

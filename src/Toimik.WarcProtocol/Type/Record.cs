@@ -38,7 +38,7 @@ namespace Toimik.WarcProtocol
             string version,
             Uri recordId,
             DateTime date,
-            IList<string> orderedFields,
+            IEnumerable<string> orderedFields,
             string truncatedReason = null,
             DigestFactory digestFactory = null)
         {
@@ -60,7 +60,7 @@ namespace Toimik.WarcProtocol
 
         public Uri Id { get; private set; }
 
-        public IList<string> OrderedFields { get; }
+        public IEnumerable<string> OrderedFields { get; }
 
         public string TruncatedReason { get; private set; }
 
@@ -68,7 +68,7 @@ namespace Toimik.WarcProtocol
 
         public string Version { get; }
 
-        public string GetHeader(IList<string> orderedFields = null)
+        public string GetHeader(IEnumerable<string> orderedFields = null)
         {
             orderedFields ??= OrderedFields;
             var builder = new StringBuilder($"WARC/{Version}{WarcParser.CrLf}");
