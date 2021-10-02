@@ -1,3 +1,5 @@
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/toimik/WarcProtocol/CI)
+
 # Toimik.WarcProtocol
 
 .NET 5 C# [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1) parser.
