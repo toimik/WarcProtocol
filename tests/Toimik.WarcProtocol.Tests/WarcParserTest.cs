@@ -959,7 +959,7 @@
             using var inputStream = File.OpenRead(path);
             var tempPath = CreateTempFile(FileExtensionForCompressed);
             using var outputStream = File.OpenWrite(tempPath);
-            using (GZipStream compressedStream = new GZipStream(outputStream, CompressionMode.Compress))
+            using (GZipStream compressedStream = new(outputStream, CompressionMode.Compress))
             {
                 inputStream.CopyTo(compressedStream);
             }

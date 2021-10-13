@@ -203,7 +203,7 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForTargetUri:
-                    TargetUri = new Uri(value);
+                    TargetUri = new(value);
                     break;
 
                 default:

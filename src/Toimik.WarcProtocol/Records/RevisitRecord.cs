@@ -198,7 +198,7 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForProfile:
-                    Profile = new Uri(value);
+                    Profile = new(value);
                     break;
 
                 case FieldForRefersTo:
@@ -210,11 +210,11 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForRefersToTargetUri:
-                    RefersToTargetUri = new Uri(value);
+                    RefersToTargetUri = new(value);
                     break;
 
                 case FieldForTargetUri:
-                    TargetUri = new Uri(value);
+                    TargetUri = new(value);
                     break;
 
                 default:

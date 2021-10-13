@@ -116,7 +116,7 @@ namespace Toimik.WarcProtocol
             var isCompressed = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
             if (!isCompressed)
             {
-                lineReader = new LineReader(stream, cancellationToken);
+                lineReader = new(stream, cancellationToken);
             }
             else
             {
@@ -129,7 +129,7 @@ namespace Toimik.WarcProtocol
                 // Unless otherwise stated, parsing continues until EOF.
 
                 decompressStream = CompressionStreamFactory.CreateDecompressStream(stream);
-                lineReader = new LineReader(decompressStream, cancellationToken);
+                lineReader = new(decompressStream, cancellationToken);
             }
 
             lineReader.Offset(byteOffset);
