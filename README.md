@@ -1,5 +1,5 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/toimik/WarcProtocol/CI)
-![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nurhafiz/290ef684adc013ef633c637f8f227f57/raw/code-coverage.json)
+![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/nurhafiz/315596422731782085c250a859a3cc38/raw/WarcProtocol-coverage.json)
 
 # Toimik.WarcProtocol
 

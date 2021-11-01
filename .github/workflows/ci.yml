@@ -38,6 +38,6 @@ jobs:
         label: coverage
         color: brightgreen
         path: tests/Toimik.WarcProtocol.Tests/coverage.opencover.xml
-        gist-filename: code-coverage.json
-        gist-id: 290ef684adc013ef633c637f8f227f57
+        gist-filename: WarcProtocol-coverage.json
+        gist-id: 315596422731782085c250a859a3cc38
         gist-auth-token: ${{ secrets.GIST_AUTH_TOKEN }}
