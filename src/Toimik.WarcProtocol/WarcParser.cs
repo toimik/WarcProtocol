@@ -164,10 +164,7 @@ namespace Toimik.WarcProtocol
             }
             finally
             {
-                if (decompressStream != null)
-                {
-                    decompressStream.Close();
-                }
+                decompressStream?.Close();
             }
         }
 
