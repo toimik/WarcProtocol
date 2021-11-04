@@ -5,8 +5,10 @@
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.IO.Compression;
+    using System.Linq;
     using System.Net;
     using System.Text;
+    using System.Threading.Tasks;
     using ICSharpCode.SharpZipLib.GZip;
     using Xunit;
 
@@ -34,41 +36,38 @@
         };
 
         [Fact]
-        public void ExceptionDueToLongerContentLengthButIsSuppressed()
+        public async Task ExceptionDueToLongerContentLengthButIsSuppressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}short_content_block.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var record = GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
 
-            Assert.Null(record);
+            Assert.Empty(records);
             var actualMessage = parseLog.Messages[0];
             Assert.Contains("Content block is", actualMessage);
         }
 
         [Fact]
-        public void ExceptionDueToLongerContentLengthButIsUnsuppressed()
+        public async Task ExceptionDueToLongerContentLengthButIsUnsuppressed()
         {
             var parser = new WarcParser();
 
             var path = $"{DirectoryForInvalidRecords}short_content_block.warc";
-            var records = parser.Parse(path);
 
-            var ex = Assert.Throws<FormatException>(() => GetFirstRecord(records));
+            var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
             Assert.Contains("Content block is", ex.Message);
         }
 
         [Fact]
-        public void ExceptionDueToMalformedHeaderThatIsSuppressed()
+        public async Task ExceptionDueToMalformedHeaderThatIsSuppressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}malformed_header.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            GetFirstRecord(records);
+            await parser.Parse(path, parseLog).ToListAsync();
 
             var expectedMessages = new List<string>
             {
@@ -113,54 +112,50 @@
         }
 
         [Fact]
-        public void ExceptionDueToMalformedHeaderThatIsUnsuppressed()
+        public async Task ExceptionDueToMalformedHeaderThatIsUnsuppressed()
         {
             var parser = new WarcParser();
 
             var path = $"{DirectoryForInvalidRecords}malformed_header.warc";
-            var records = parser.Parse(path);
 
-            Assert.Throws<FormatException>(() => GetFirstRecord(records));
+            await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
         }
 
         [Fact]
-        public void ExceptionDueToMissingMandatoryHeaderFieldButIsSuppressed()
+        public async Task ExceptionDueToMissingMandatoryHeaderFieldButIsSuppressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}missing_header_field.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            GetFirstRecord(records);
+            await parser.Parse(path, parseLog).ToListAsync();
 
             var expectedCounter = 4;
             Assert.Equal(expectedCounter, parseLog.Messages.Count);
         }
 
         [Fact]
-        public void ExceptionDueToMissingMandatoryHeaderFieldButIsUnsuppressed()
+        public async Task ExceptionDueToMissingMandatoryHeaderFieldButIsUnsuppressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}missing_header_field.warc";
-            var records = parser.Parse(path);
 
-            var exception = Assert.Throws<FormatException>(() => GetFirstRecord(records));
+            var exception = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
             Assert.Contains("One of the mandatory header fields is missing", exception.Message);
         }
 
         [Theory]
         [InlineData("premature_wo_trailing_newline.warc")]
         [InlineData("premature_w_trailing_newline.warc")]
-        public void ExceptionDueToPrematureEndOfFileButIsSuppressed(string filename)
+        public async Task ExceptionDueToPrematureEndOfFileButIsSuppressed(string filename)
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}{filename}";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var record = GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
 
-            Assert.Null(record);
+            Assert.Empty(records);
             var actualMessage = parseLog.Messages[0];
             Assert.Contains("Premature end of file", actualMessage);
         }
@@ -168,19 +163,18 @@
         [Theory]
         [InlineData("premature_wo_trailing_newline.warc")]
         [InlineData("premature_w_trailing_newline.warc")]
-        public void ExceptionDueToPrematureEndOfFileButIsUnsuppressed(string filename)
+        public async Task ExceptionDueToPrematureEndOfFileButIsUnsuppressed(string filename)
         {
             var parser = new WarcParser();
 
             var path = $"{DirectoryForInvalidRecords}{filename}";
-            var records = parser.Parse(path);
 
-            var ex = Assert.Throws<FormatException>(() => GetFirstRecord(records));
+            var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
             Assert.Contains("Premature end of file", ex.Message);
         }
 
         [Fact]
-        public void IncorrectContentLengthThatIsUncompressed()
+        public async Task IncorrectContentLengthThatIsUncompressed()
         {
             var expectedContents = new List<string>
             {
@@ -194,14 +188,13 @@
             var parseLog = new CustomParseLog();
             var records = parser.Parse(path, parseLog);
 
-            var enumerator = records.GetEnumerator();
-            for (int i = 0; i < expectedContents.Count; i++)
+            var index = 0;
+            await foreach (WarcProtocol.Record record in records)
             {
-                var expectedContent = expectedContents[i];
-                enumerator.MoveNext();
-                var record = (ResourceRecord)enumerator.Current;
-                var actualContent = Encoding.UTF8.GetString(record.RecordBlock);
+                var expectedContent = expectedContents[index];
+                var actualContent = Encoding.UTF8.GetString(((ResourceRecord)record).RecordBlock);
                 Assert.Equal(expectedContent, actualContent);
+                index++;
             }
 
             var chunks = parseLog.Chunks;
@@ -231,7 +224,7 @@
         [InlineData("revisit_identical.warc")]
         [InlineData("revisit_unmodified.warc")]
         [InlineData("warcinfo.warc")]
-        public void IndividualRecordThatIsCompressed(string filename)
+        public async Task IndividualRecordThatIsCompressed(string filename)
         {
             string tempCompressedFile = null;
             try
@@ -239,7 +232,7 @@
                 var path = $"{DirectoryForValidRecords}{filename}";
                 tempCompressedFile = CompressFile(path);
 
-                TestFile(tempCompressedFile, recordCount: 1);
+                await TestFile(tempCompressedFile, recordCount: 1);
             }
             finally
             {
@@ -262,7 +255,7 @@
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void MergedRecordsThatAreIndividuallyCompressedAsOneFile(bool isCustomCompressionStreamFactoryUsed)
+        public async Task MergedRecordsThatAreIndividuallyCompressedAsOneFile(bool isCustomCompressionStreamFactoryUsed)
         {
             string path = null;
             try
@@ -273,7 +266,7 @@
                 var compressionStreamFactory = isCustomCompressionStreamFactoryUsed
                     ? new SharpZipCompressionStreamFactory()
                     : null;
-                TestFile(
+                await TestFile(
                     path,
                     MergeFilenames.Count,
                     compressionStreamFactory);
@@ -285,7 +278,7 @@
         }
 
         [Fact]
-        public void MergedRecordsThatAreUncompressedAsOneFile()
+        public async Task MergedRecordsThatAreUncompressedAsOneFile()
         {
             string path = null;
             try
@@ -293,7 +286,7 @@
                 path = CreateTempFile(FileExtensionForUncompressed);
                 MergeUncompressedRecords(path);
 
-                TestFile(path, MergeFilenames.Count);
+                await TestFile(path, MergeFilenames.Count);
             }
             finally
             {
@@ -304,7 +297,7 @@
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void MergedRecordsThatAreWhollyCompressedAsOneFile(bool isCustomCompressionStreamFactoryUsed)
+        public async Task MergedRecordsThatAreWhollyCompressedAsOneFile(bool isCustomCompressionStreamFactoryUsed)
         {
             string path = null;
             string tempCompressedFile = null;
@@ -317,7 +310,7 @@
                 var compressionStreamFactory = isCustomCompressionStreamFactoryUsed
                     ? new SharpZipCompressionStreamFactory()
                     : null;
-                TestFile(
+                await TestFile(
                     tempCompressedFile,
                     MergeFilenames.Count,
                     compressionStreamFactory);
@@ -330,13 +323,13 @@
         }
 
         [Fact]
-        public void MultilineHeaderValues()
+        public async Task MultilineHeaderValues()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}multiline_header_values.warc";
 
-            var records = parser.Parse(path);
-            var record = (ResourceRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path).ToListAsync();
+            var record = (ResourceRecord)records[0];
 
             Assert.Equal("1.0", record.Version);
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
@@ -346,25 +339,24 @@
         }
 
         [Fact]
-        public void OffsetOverLimit()
+        public async Task OffsetOverLimit()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}incorrect_content_length.warc";
 
-            var records = parser.Parse(path, byteOffset: 1000);
-            var exception = Assert.Throws<ArgumentException>(() => GetFirstRecord(records));
+            var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await parser.Parse(path, byteOffset: 1000).ToListAsync());
 
             Assert.Contains("Offset exceeds file size", exception.Message);
         }
 
         [Fact]
-        public void OffsetUnderLimit()
+        public async Task OffsetUnderLimit()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForInvalidRecords}incorrect_content_length.warc";
 
-            var records = parser.Parse(path, byteOffset: 697);
-            var record = (ResourceRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, byteOffset: 697).ToListAsync();
+            var record = (ResourceRecord)records[0];
 
             Assert.Equal("1.1", record.Version);
             Assert.Equal(DateTime.Parse("2001-01-01T12:34:56Z"), record.Date);
@@ -375,14 +367,14 @@
         }
 
         [Fact]
-        public void RecordForContinuationThatIsUncompressed()
+        public async Task RecordForContinuationThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}continuation.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (ContinuationRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (ContinuationRecord)records[0];
 
             var expectedRecord = new ContinuationRecord(
                 actualRecord.Version,
@@ -416,14 +408,14 @@
         }
 
         [Fact]
-        public void RecordForConversionThatIsUncompressed()
+        public async Task RecordForConversionThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}conversion.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (ConversionRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (ConversionRecord)records[0];
 
             var expectedRecord = new ConversionRecord(
                 actualRecord.Version,
@@ -462,14 +454,14 @@
         }
 
         [Fact]
-        public void RecordForMetadataThatIsUncompressed()
+        public async Task RecordForMetadataThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}metadata.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (MetadataRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (MetadataRecord)records[0];
 
             var expectedRecord = new MetadataRecord(
                 actualRecord.Version,
@@ -503,14 +495,14 @@
         }
 
         [Fact]
-        public void RecordForRequestThatIsUncompressed()
+        public async Task RecordForRequestThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}request.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (RequestRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (RequestRecord)records[0];
 
             var expectedRecord = new RequestRecord(
                 actualRecord.Version,
@@ -547,14 +539,14 @@
         }
 
         [Fact]
-        public void RecordForResourceThatIsUncompressed()
+        public async Task RecordForResourceThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}resource.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (ResourceRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (ResourceRecord)records[0];
 
             var expectedRecord = new ResourceRecord(
                 actualRecord.Version,
@@ -594,14 +586,14 @@
         }
 
         [Fact]
-        public void RecordForResponseThatIsUncompressed()
+        public async Task RecordForResponseThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}response.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (ResponseRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (ResponseRecord)records[0];
 
             var expectedRecord = new ResponseRecord(
                 actualRecord.Version,
@@ -641,14 +633,14 @@
         }
 
         [Fact]
-        public void RecordForRevisitOfIdenticalThatIsUncompressed()
+        public async Task RecordForRevisitOfIdenticalThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}revisit_identical.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (RevisitRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (RevisitRecord)records[0];
 
             var expectedRecord = new RevisitRecord(
                 actualRecord.Version,
@@ -691,14 +683,14 @@
         }
 
         [Fact]
-        public void RecordForRevisitOfUnmodifiedThatIsUncompressed()
+        public async Task RecordForRevisitOfUnmodifiedThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}revisit_unmodified.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (RevisitRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (RevisitRecord)records[0];
 
             var expectedRecord = new RevisitRecord(
                 actualRecord.Version,
@@ -735,14 +727,14 @@
         }
 
         [Fact]
-        public void RecordForWarcinfoThatIsUncompressed()
+        public async Task RecordForWarcinfoThatIsUncompressed()
         {
             var parser = new WarcParser();
             var path = $"{DirectoryForValidRecords}warcinfo.warc";
             var parseLog = new CustomParseLog();
 
-            var records = parser.Parse(path, parseLog);
-            var actualRecord = (WarcinfoRecord)GetFirstRecord(records);
+            var records = await parser.Parse(path, parseLog).ToListAsync();
+            var actualRecord = (WarcinfoRecord)records[0];
 
             var expectedRecord = new WarcinfoRecord(
                 actualRecord.Version,
@@ -1023,14 +1015,6 @@
             }
         }
 
-        private static WarcProtocol.Record GetFirstRecord(IEnumerable<WarcProtocol.Record> records)
-        {
-            var enumerator = records.GetEnumerator();
-            enumerator.MoveNext();
-            var record = enumerator.Current;
-            return record;
-        }
-
         private static string RenameFileExtension(string path, string extension)
         {
             var slashIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
@@ -1042,14 +1026,14 @@
             return newPath;
         }
 
-        private static void TestFile(
+        private static async Task TestFile(
             string path,
             int recordCount,
             CompressionStreamFactory compressionStreamFactory = null)
         {
             var recordCounter = 0;
             var parser = new WarcParser(compressionStreamFactory: compressionStreamFactory);
-            foreach (WarcProtocol.Record record in parser.Parse(path))
+            await foreach (WarcProtocol.Record record in parser.Parse(path))
             {
                 switch (record.Type.ToLower())
                 {

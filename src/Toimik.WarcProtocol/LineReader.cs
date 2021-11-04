@@ -21,6 +21,7 @@ namespace Toimik.WarcProtocol
     using System.IO;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public class LineReader
     {
@@ -40,15 +41,12 @@ namespace Toimik.WarcProtocol
 
         public Stream Stream { get; }
 
-        public void Offset(long byteOffset)
+        public async Task Offset(long byteOffset)
         {
             // NOTE: This is naively done because seek is unsupported by the underlying class
             for (long i = 0; i < byteOffset; i++)
             {
-                var readCount = Stream.Read(
-                    buffer: new byte[1],
-                    offset: 0,
-                    count: 1);
+                var readCount = await Stream.ReadAsync(buffer: (new byte[1]).AsMemory(start: 0, length: 1));
                 var isEofEncountered = readCount == 0;
                 if (isEofEncountered)
                 {
@@ -57,7 +55,7 @@ namespace Toimik.WarcProtocol
             }
         }
 
-        public string Read()
+        public async Task<string> Read()
         {
             // NOTE: A line is terminated by consecutive occurrences of the EOL characters
             var readBytes = new List<byte>();
@@ -65,10 +63,7 @@ namespace Toimik.WarcProtocol
             {
                 CancellationToken.ThrowIfCancellationRequested();
                 var buffer = new byte[1];
-                var readCount = Stream.Read(
-                    buffer,
-                    offset: 0,
-                    count: 1);
+                var readCount = await Stream.ReadAsync(buffer.AsMemory(start: 0, length: 1));
                 var isEofEncountered = readCount == 0;
                 if (isEofEncountered)
                 {

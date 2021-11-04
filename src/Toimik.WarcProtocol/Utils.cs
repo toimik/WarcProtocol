@@ -19,6 +19,7 @@ namespace Toimik.WarcProtocol
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
 
     public class Utils
     {
@@ -27,14 +28,14 @@ namespace Toimik.WarcProtocol
         {
         }
 
-        public static IDictionary<string, string> ParseWarcFields(LineReader lineReader)
+        public static async Task<IDictionary<string, string>> ParseWarcFields(LineReader lineReader)
         {
             var fieldToValue = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var processedFieldToValue = new Dictionary<string, string>();
             string field = null;
             while (true)
             {
-                var line = lineReader.Read();
+                var line = await lineReader.Read();
                 var isEofEncountered = line == null;
                 if (isEofEncountered)
                 {

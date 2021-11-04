@@ -19,8 +19,10 @@ namespace Toimik.WarcProtocol
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a parser for WARC files that are formatted according to version 1.1 and 1.0.
@@ -104,16 +106,41 @@ namespace Toimik.WarcProtocol
         /// individually compressed.
         /// </para>
         /// </remarks>
-        public IEnumerable<Record> Parse(
+        public async IAsyncEnumerable<Record> Parse(
             string path,
             IParseLog parseLog = null,
             long byteOffset = 0,
-            CancellationToken cancellationToken = default)
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            using var stream = File.OpenRead(path);
+            var isCompressed = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
+            await foreach (WarcProtocol.Record record in Parse(
+                stream,
+                isCompressed,
+                parseLog,
+                byteOffset,
+                cancellationToken))
+            {
+                yield return record;
+            }
+        }
+
+        /// <summary>
+        /// Similar to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> except that a
+        /// stream and an indication of whether it is compressed is passed.
+        /// </summary>
+        /// <remarks>
+        /// The stream is kept opened after processing.
+        /// </remarks>
+        public async IAsyncEnumerable<Record> Parse(
+            Stream stream,
+            bool isCompressed,
+            IParseLog parseLog = null,
+            long byteOffset = 0,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             LineReader lineReader;
-            using var stream = File.OpenRead(path);
             Stream decompressStream = null;
-            var isCompressed = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
             if (!isCompressed)
             {
                 lineReader = new(stream, cancellationToken);
@@ -132,7 +159,7 @@ namespace Toimik.WarcProtocol
                 lineReader = new(decompressStream, cancellationToken);
             }
 
-            lineReader.Offset(byteOffset);
+            await lineReader.Offset(byteOffset);
 
             try
             {
@@ -141,7 +168,7 @@ namespace Toimik.WarcProtocol
                     Record record = null;
                     try
                     {
-                        record = Parse(lineReader, parseLog);
+                        record = await Parse(lineReader, parseLog);
                         if (record == null)
                         {
                             break;
@@ -183,7 +210,7 @@ namespace Toimik.WarcProtocol
             return field;
         }
 
-        private static byte[] ParseContentBlock(LineReader lineReader, int contentLength)
+        private static async Task<byte[]> ParseContentBlock(LineReader lineReader, int contentLength)
         {
             // Content block starts after the second pair of crlf, of which the first is read
             // earlier. The block is as long as the value indicated by the Content-Length header and
@@ -193,26 +220,23 @@ namespace Toimik.WarcProtocol
             var readCount = 0;
             var remainder = contentLength;
 
-            // NOTE: Looping is required because Stream.Read(...) does not always return all the
-            // characters up to the buffer's length
+            // NOTE: Looping is required because Stream.ReadAsync(...) does not always return all
+            // the characters up to the buffer's length
 
-            do
+            var hasReadAllData = remainder == 0;
+            while (!hasReadAllData)
             {
                 lineReader.CancellationToken.ThrowIfCancellationRequested();
-                readCount = lineReader.Stream.Read(
-                    contentBlock,
-                    readCount,
-                    remainder);
+                readCount = await lineReader.Stream.ReadAsync(contentBlock.AsMemory(readCount, remainder));
                 var isEofEncountered = readCount == 0;
                 remainder -= readCount;
-                var hasReadAllData = remainder == 0;
+                hasReadAllData = remainder == 0;
                 if (isEofEncountered
                     || hasReadAllData)
                 {
                     break;
                 }
             }
-            while (true);
 
             var hasMissingData = remainder > 0;
             if (hasMissingData)
@@ -248,7 +272,7 @@ namespace Toimik.WarcProtocol
             return version;
         }
 
-        private static string ReadUntilNextRecord(LineReader lineReader, IParseLog parseLog)
+        private static async Task<string> ReadUntilNextRecord(LineReader lineReader, IParseLog parseLog)
         {
             // Move the stream's position to the next occurrence of 'WARC/' (case-insensitive)
 
@@ -256,7 +280,7 @@ namespace Toimik.WarcProtocol
             string line;
             while (true)
             {
-                line = lineReader.Read();
+                line = await lineReader.Read();
                 if (line == null
                     || line.StartsWith("WARC/", StringComparison.OrdinalIgnoreCase))
                 {
@@ -304,9 +328,9 @@ namespace Toimik.WarcProtocol
             }
         }
 
-        private Record Parse(LineReader lineReader, IParseLog parseLog)
+        private async Task<Record> Parse(LineReader lineReader, IParseLog parseLog)
         {
-            var line = ReadUntilNextRecord(lineReader, parseLog);
+            var line = await ReadUntilNextRecord(lineReader, parseLog);
             var isEofEncountered = line == null;
             if (isEofEncountered)
             {
@@ -322,7 +346,7 @@ namespace Toimik.WarcProtocol
                 // passes on the header because a record can only be instantiated after knowing the
                 // value of WARC-Type
 
-                var fieldToValue = Utils.ParseWarcFields(lineReader);
+                var fieldToValue = await Utils.ParseWarcFields(lineReader);
                 ValidateMandatoryHeaderFields(fieldToValue);
                 var recordType = fieldToValue[Record.FieldForType];
                 var recordId = fieldToValue[Record.FieldForRecordId];
@@ -334,7 +358,7 @@ namespace Toimik.WarcProtocol
                     DateTime.Parse(date));
                 SetHeaderFields(record, fieldToValue);
                 var contentLength = int.Parse(fieldToValue[Record.FieldForContentLength]);
-                var contentBlock = ParseContentBlock(lineReader, contentLength);
+                var contentBlock = await ParseContentBlock(lineReader, contentLength);
                 record.SetContentBlock(contentBlock);
             }
             catch (Exception ex)

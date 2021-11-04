@@ -34,7 +34,7 @@ using System.Diagnostics;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         var parser = new WarcParser();
 
@@ -42,7 +42,8 @@ class Program
         // compressed (as a whole or per record)
         var path = "uncompressed.warc";
 
-        // var path "compressed.warc.gz"; // Note the .gz extension
+        // Use a '.gz' file extension to indicate that the file is compressed using GZip
+        // var path "compressed.warc.gz";
 
         // In case any part of the WARC file is malformed and parsing is expected to resume -
         // rather than throwing an exception and terminates - a parse log is specified
@@ -50,7 +51,13 @@ class Program
 
         // Parse the file and process the records accordingly
         var records = parser.Parse(path, parseLog);
-        foreach (Record record in records)
+
+        // Alternatively, use a stream:
+        // var stream = ...
+        // var isCompressed = ... // true if the stream is compressed; false otherwise
+        // var records = parser.Parse(stream, isCompressed, parseLog);
+
+        await foreach (WarcProtocol.Record record in records)
         {
             switch (record.Type.ToLower())
             {
@@ -85,13 +92,11 @@ class Program
                     break;
 
                 case "revisit":
-                    Console.WriteLine(((RevisitRecord) record).Profile);
 
                     // ...
                     break;
 
                 case "warcinfo":
-                    Console.WriteLine(((WarcinfoRecord) record).Filename);
 
                     // ...
                     break;
