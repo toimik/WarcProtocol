@@ -5,7 +5,6 @@
     using Xunit;
 
     public class ResponseRecordTest
-
     {
         [Fact]
         public void InstantiateUsingConstructorWithFewerParameters()

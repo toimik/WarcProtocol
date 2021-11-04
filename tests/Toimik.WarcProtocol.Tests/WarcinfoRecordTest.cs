@@ -4,7 +4,6 @@
     using Xunit;
 
     public class WarcinfoRecordTest
-
     {
         [Fact]
         public void InstantiateUsingConstructorWithFewerParameters()

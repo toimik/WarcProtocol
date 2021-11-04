@@ -5,7 +5,6 @@
     using Xunit;
 
     public class RequestRecordTest
-
     {
         [Fact]
         public void InstantiateUsingConstructorWithFewerParameters()

@@ -4,7 +4,6 @@
     using Xunit;
 
     public class RecordFactoryTest
-
     {
         [Fact]
         public void InvalidRecordType()

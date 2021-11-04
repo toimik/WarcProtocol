@@ -4,7 +4,6 @@
     using Xunit;
 
     public class RevisitRecordTest
-
     {
         [Fact]
         public void InstantiateUsingConstructorWithFewerParameters()
