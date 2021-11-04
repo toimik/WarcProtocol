@@ -32,7 +32,7 @@ namespace Toimik.WarcProtocol.Tests
             var infoId = Utils.CreateId();
             var targetUri = new Uri("http://www.example.com");
 
-            var ResourceRecord = new ResourceRecord(
+            var resourceRecord = new ResourceRecord(
                 now,
                 payloadTypeIdentifier,
                 recordBlock: Encoding.UTF8.GetBytes("foo"),
@@ -41,19 +41,19 @@ namespace Toimik.WarcProtocol.Tests
                 targetUri: targetUri,
                 payloadDigest: payloadDigest);
 
-            Assert.Equal("1.1", ResourceRecord.Version);
-            Assert.NotNull(ResourceRecord.Id);
-            Assert.Equal(payloadTypeIdentifier, ResourceRecord.PayloadTypeIdentifier);
-            Assert.Equal("foo", Encoding.UTF8.GetString(ResourceRecord.RecordBlock));
-            Assert.Equal("text/plain", ResourceRecord.ContentType);
+            Assert.Equal("1.1", resourceRecord.Version);
+            Assert.NotNull(resourceRecord.Id);
+            Assert.Equal(payloadTypeIdentifier, resourceRecord.PayloadTypeIdentifier);
+            Assert.Equal("foo", Encoding.UTF8.GetString(resourceRecord.RecordBlock));
+            Assert.Equal("text/plain", resourceRecord.ContentType);
 
             var continuationRecord = new ContinuationRecord(
-                ResourceRecord.Date,
+                resourceRecord.Date,
                 recordBlock: Encoding.UTF8.GetBytes("bar"),
-                ResourceRecord.PayloadDigest,
-                ResourceRecord.InfoId,
-                ResourceRecord.TargetUri,
-                ResourceRecord.InfoId,
+                resourceRecord.PayloadDigest,
+                resourceRecord.InfoId,
+                resourceRecord.TargetUri,
+                resourceRecord.InfoId,
                 segmentNumber: 2);
 
             Assert.Equal("1.1", continuationRecord.Version);
@@ -69,7 +69,7 @@ namespace Toimik.WarcProtocol.Tests
         [Fact]
         public void WithoutPayloadDigest()
         {
-            var ResourceRecord = new ResourceRecord(
+            var resourceRecord = new ResourceRecord(
                 DateTime.Now,
                 new PayloadTypeIdentifier(),
                 Encoding.UTF8.GetBytes("foo"),
@@ -79,7 +79,7 @@ namespace Toimik.WarcProtocol.Tests
 
             var digestFactory = new DigestFactory("sha1");
             var expectedPayloadDigest = Utils.CreateWarcDigest(digestFactory, Encoding.UTF8.GetBytes("foo"));
-            Assert.Equal(expectedPayloadDigest, ResourceRecord.PayloadDigest);
+            Assert.Equal(expectedPayloadDigest, resourceRecord.PayloadDigest);
         }
     }
 }
