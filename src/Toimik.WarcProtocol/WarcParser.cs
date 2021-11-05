@@ -114,7 +114,7 @@ namespace Toimik.WarcProtocol
         {
             using var stream = File.OpenRead(path);
             var isCompressed = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
-            await foreach (WarcProtocol.Record record in Parse(
+            await foreach (Record record in Parse(
                 stream,
                 isCompressed,
                 parseLog,
