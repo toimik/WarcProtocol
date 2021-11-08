@@ -337,7 +337,8 @@ namespace Toimik.WarcProtocol
                 return null;
             }
 
-            Record record = null;
+            Record record;
+            IDictionary<string, string> fieldToValue = null;
             try
             {
                 var version = ProcessRecordDeclaration(line);
@@ -346,7 +347,7 @@ namespace Toimik.WarcProtocol
                 // passes on the header because a record can only be instantiated after knowing the
                 // value of WARC-Type
 
-                var fieldToValue = await Utils.ParseWarcFields(lineReader);
+                fieldToValue = await Utils.ParseWarcFields(lineReader);
                 ValidateMandatoryHeaderFields(fieldToValue);
                 var recordType = fieldToValue[Record.FieldForType];
                 var recordId = fieldToValue[Record.FieldForRecordId];
@@ -363,10 +364,12 @@ namespace Toimik.WarcProtocol
             }
             catch (Exception ex)
             {
-                var text = record == null
-                    ? "<undefined record id>"
-                    : $"{Utils.AddBracketsToUri(record.Id)}";
-                var message = $"[{text}] {ex.Message}";
+                var message = ex.Message;
+                if (fieldToValue != null)
+                {
+                    message = $"{message}{Environment.NewLine}{Environment.NewLine}Additional debugging info:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, fieldToValue)}";
+                }
+
                 throw new FormatException(message);
             }
 
