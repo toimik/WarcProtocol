@@ -27,7 +27,10 @@ namespace Toimik.WarcProtocol
 
         public virtual Stream CreateDecompressStream(Stream stream)
         {
-            return new GZipStream(stream, CompressionMode.Decompress);
+            return new GZipStream(
+                stream,
+                CompressionMode.Decompress,
+                leaveOpen: true);
         }
     }
 }
