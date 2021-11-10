@@ -32,6 +32,7 @@ PM> Install-Package Toimik.WarcProtocol
 
 ```c# 
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 class Program
 {
