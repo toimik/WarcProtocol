@@ -362,7 +362,7 @@ namespace Toimik.WarcProtocol
                 var contentBlock = await ParseContentBlock(lineReader, contentLength);
                 record.SetContentBlock(contentBlock);
             }
-            catch (Exception ex)
+            catch (FormatException ex)
             {
                 var message = ex.Message;
                 if (fieldToValue != null)
