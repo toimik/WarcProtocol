@@ -518,8 +518,6 @@
                 actualRecord.ConcurrentTos,
                 actualRecord.TruncatedReason,
                 actualRecord.DigestFactory);
-            {
-            };
 
             Assert.Equal(expectedRecord.ContentBlock.Length, actualRecord.ContentLength);
             Assert.Null(expectedRecord.IdentifiedPayloadType);
