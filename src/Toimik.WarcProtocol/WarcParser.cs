@@ -80,8 +80,11 @@ namespace Toimik.WarcProtocol
         /// Number of bytes to offset.
         /// </param>
         /// <param name="cancellationToken">
-        /// Token to monitor for cancellation request.
+        /// Optional token to monitor for cancellation request.
         /// </param>
+        /// <returns>
+        /// Parsed <see cref="Record"/>(s).
+        /// </returns>
         /// <remarks>
         /// A malformed warc file may have a Content-Length that does not match the content block's
         /// length; The actual length may be shorter or longer. This introduces a complication if
@@ -129,8 +132,32 @@ namespace Toimik.WarcProtocol
         /// Similar to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> except that a
         /// stream and an indication of whether it is compressed is passed.
         /// </summary>
+        /// <param name="stream">
+        /// A <see cref="Stream"/> representing the content of a WARC file.
+        /// </param>
+        /// <param name="isCompressed">
+        /// An indication of whether <paramref name="stream"/> is GZip-ed compressed.
+        /// </param>
+        /// <param name="parseLog">
+        /// If <c>null</c>, parsing terminates immediately if an exception is thrown. Otherwise,
+        /// parsing continues but all errors and skipped chunks are passed to this
+        /// <see cref="IParseLog"/>.
+        /// </param>
+        /// <param name="byteOffset">
+        /// Number of bytes to offset.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// Optional token to monitor for cancellation request.
+        /// </param>
+        /// <returns>
+        /// Parsed <see cref="Record"/>(s).
+        /// </returns>
         /// <remarks>
         /// The stream is kept opened after processing.
+        /// <para>
+        /// Refer to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> for additional
+        /// remarks.
+        /// </para>
         /// </remarks>
         public async IAsyncEnumerable<Record> Parse(
             Stream stream,
