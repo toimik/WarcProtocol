@@ -49,10 +49,11 @@ namespace Toimik.WarcProtocol
                     break;
                 }
 
-                // Each line can either be a line:
-                // - formatted as <name field>:<value>, or
-                // - starting with any number of spaces or tabs. In this case, this denotes the
-                // continued value for the last read field
+                /* Each line can either be a line:
+                 * - formatted as <name field>:<value>, or
+                 * - starting with any number of spaces or tabs. In this case, this denotes the
+                 * continued value for the last read field
+                 */
 
                 var isValueForPreviousField = line.StartsWith(' ')
                     || line.StartsWith("\\t");

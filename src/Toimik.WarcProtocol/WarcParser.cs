@@ -147,13 +147,14 @@ namespace Toimik.WarcProtocol
             }
             else
             {
-                // A WARC file can be compressed either in its entirety or per record. If it is the
-                // latter, the default decompress stream throws an exception after reading each
-                // record. Therefore, the parsing is wrapped inside a loop where the data is read
-                // until the end of file (EOF).
-
-                // In either cases, a format exception may be thrown due to malformed content.
-                // Unless otherwise stated, parsing continues until EOF.
+                /* A WARC file can be compressed either in its entirety or per record. If it is the
+                 * latter, the default decompress stream throws an exception after reading each
+                 * record. Therefore, the parsing is wrapped inside a loop where the data is read
+                 * until the end of file (EOF).
+                 *
+                 * In either cases, a format exception may be thrown due to malformed content.
+                 * Unless otherwise stated, parsing continues until EOF.
+                 */
 
                 decompressStream = CompressionStreamFactory.CreateDecompressStream(stream);
                 lineReader = new(decompressStream, cancellationToken);
@@ -212,16 +213,18 @@ namespace Toimik.WarcProtocol
 
         private static async Task<byte[]> ParseContentBlock(LineReader lineReader, int contentLength)
         {
-            // Content block starts after the second pair of crlf, of which the first is read
-            // earlier. The block is as long as the value indicated by the Content-Length header and
-            // may consist of a payload.
+            /* Content block starts after the second pair of crlf, of which the first is read
+             * earlier. The block is as long as the value indicated by the Content-Length header and
+             * may consist of a payload.
+             */
 
             var contentBlock = new byte[contentLength];
             var readCount = 0;
             var remainder = contentLength;
 
-            // NOTE: Looping is required because Stream.ReadAsync(...) does not always return all
-            // the characters up to the buffer's length
+            /* NOTE: Looping is required because Stream.ReadAsync(...) does not always return all
+             * the characters up to the buffer's length
+             */
 
             var hasReadAllData = remainder == 0;
             while (!hasReadAllData)
@@ -251,8 +254,9 @@ namespace Toimik.WarcProtocol
 
         private static string ProcessRecordDeclaration(string line)
         {
-            // NOTE: Record declaration is the first line of every record that must be formatted as
-            // 'WARC/<version>'
+            /* NOTE: Record declaration is the first line of every record that must be formatted as
+             * 'WARC/<version>'
+             */
 
             var tokens = line.Split('/');
             if (tokens.Length != 2)
@@ -274,7 +278,7 @@ namespace Toimik.WarcProtocol
 
         private static async Task<string> ReadUntilNextRecord(LineReader lineReader, IParseLog parseLog)
         {
-            // Move the stream's position to the next occurrence of 'WARC/' (case-insensitive)
+            /* Move the stream's position to the next occurrence of 'WARC/' (case-insensitive) */
 
             var builder = new StringBuilder();
             string line;
@@ -343,9 +347,10 @@ namespace Toimik.WarcProtocol
             {
                 var version = ProcessRecordDeclaration(line);
 
-                // As header fields can be in any order, there is no choice but to perform two
-                // passes on the header because a record can only be instantiated after knowing the
-                // value of WARC-Type
+                /* As header fields can be in any order, there is no choice but to perform two
+                 * passes on the header because a record can only be instantiated after knowing the
+                 * value of WARC-Type
+                 */
 
                 fieldToValue = await Utils.ParseWarcFields(lineReader);
                 ValidateMandatoryHeaderFields(fieldToValue);

@@ -71,7 +71,7 @@
 
             var expectedMessages = new List<string>
             {
-                // NOTE: The first two are ignored because they do not start with 'warc/'
+                /* NOTE: The first two are ignored because they do not start with 'warc/' */
 
                 "Unsupported format version",
                 "Invalid record declaration",
