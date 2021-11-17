@@ -22,7 +22,7 @@
 
         private static readonly string DirectoryForValidRecords = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}";
 
-        private readonly ISet<string> MergeFilenames = new HashSet<string>
+        private readonly ISet<string> mergeFilenames = new HashSet<string>
         {
             "continuation.warc",
             "conversion.warc",
@@ -268,7 +268,7 @@
                     : null;
                 await TestFile(
                     path,
-                    MergeFilenames.Count,
+                    mergeFilenames.Count,
                     compressionStreamFactory);
             }
             finally
@@ -286,7 +286,7 @@
                 path = CreateTempFile(FileExtensionForUncompressed);
                 MergeUncompressedRecords(path);
 
-                await TestFile(path, MergeFilenames.Count);
+                await TestFile(path, mergeFilenames.Count);
             }
             finally
             {
@@ -312,7 +312,7 @@
                     : null;
                 await TestFile(
                     tempCompressedFile,
-                    MergeFilenames.Count,
+                    mergeFilenames.Count,
                     compressionStreamFactory);
             }
             finally
@@ -1105,7 +1105,7 @@
         {
             using var outputStream = File.OpenWrite(path);
             using var compressedStream = new GZipStream(outputStream, CompressionMode.Compress);
-            foreach (string filename in MergeFilenames)
+            foreach (string filename in mergeFilenames)
             {
                 var tempPath = $"{DirectoryForValidRecords}{filename}";
                 using var inputStream = File.OpenRead(tempPath);
@@ -1116,7 +1116,7 @@
         private void MergeUncompressedRecords(string path)
         {
             using var outputStream = File.OpenWrite(path);
-            foreach (string filename in MergeFilenames)
+            foreach (string filename in mergeFilenames)
             {
                 var tempPath = $"{DirectoryForValidRecords}{filename}";
                 using var inputStream = File.OpenRead(tempPath);
