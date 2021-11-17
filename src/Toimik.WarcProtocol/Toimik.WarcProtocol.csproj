@@ -21,4 +21,11 @@
     <PackageTags>warc webarchive web-archiving web-archives warc-files warc-record warc-format warc-reader</PackageTags>
     <Product>WarcProtocol</Product>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
