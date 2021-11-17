@@ -103,10 +103,8 @@ namespace Toimik.WarcProtocol
         {
         }
 
-        /// <remarks>
-        /// May contain technical information such as base encoding of the digests used in named
-        /// fields.
-        /// </remarks>
+        // NOTE: May contain technical information such as base encoding of the digests used in
+        // named fields
         public string ContentBlock { get; private set; }
 
         public string ContentType { get; private set; }
