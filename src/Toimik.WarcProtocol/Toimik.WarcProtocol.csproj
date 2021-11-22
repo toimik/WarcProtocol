@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Toimik.WarcProtocol</AssemblyName>
-    <PackageVersion>0.2.1</PackageVersion>
+    <PackageVersion>0.2.2</PackageVersion>
     <Authors>Nurhafiz</Authors>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Company>Toimik</Company>
     <Description>
@@ -19,7 +19,7 @@
     <RepositoryUrl>https://github.com/toimik/WarcProtocol.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>warc webarchive web-archiving web-archives warc-files warc-record warc-format warc-reader</PackageTags>
-    <Product>WarcProtocol</Product>
+    <Product>Toimik.WarcProtocol</Product>
   </PropertyGroup>
 
   <ItemGroup>
