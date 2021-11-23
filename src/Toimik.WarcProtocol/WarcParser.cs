@@ -38,8 +38,6 @@ namespace Toimik.WarcProtocol
 
         internal static readonly string CrLf = "\r\n";
 
-        private static readonly CompressionStreamFactory DefaultCompressionStreamFactory = new();
-
         private static readonly ISet<string> MandatoryHeaderFields = new HashSet<string>
         {
             Record.FieldForDate,
@@ -57,7 +55,7 @@ namespace Toimik.WarcProtocol
         public WarcParser(RecordFactory recordFactory = null, CompressionStreamFactory compressionStreamFactory = null)
         {
             RecordFactory = recordFactory ?? new RecordFactory();
-            CompressionStreamFactory = compressionStreamFactory ?? DefaultCompressionStreamFactory;
+            CompressionStreamFactory = compressionStreamFactory ?? new CompressionStreamFactory();
         }
 
         public CompressionStreamFactory CompressionStreamFactory { get; }
