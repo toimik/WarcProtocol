@@ -388,9 +388,7 @@
                 actualRecord.SegmentNumber,
                 actualRecord.SegmentTotalLength,
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
@@ -430,9 +428,7 @@
                 actualRecord.RefersTo,
                 actualRecord.IsSegmented(),
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Null(expectedRecord.IdentifiedPayloadType);
@@ -475,9 +471,7 @@
                 actualRecord.RefersTo,
                 actualRecord.ConcurrentTos,
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.ContentBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.ContentBlock, actualRecord.ContentBlock);
@@ -560,9 +554,7 @@
                 actualRecord.ConcurrentTos,
                 actualRecord.IsSegmented(),
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Null(actualRecord.IdentifiedPayloadType);
@@ -607,9 +599,7 @@
                 actualRecord.ConcurrentTos,
                 actualRecord.IsSegmented(),
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.ContentBlock.Length, actualRecord.ContentLength);
             Assert.Null(expectedRecord.IdentifiedPayloadType);
@@ -655,9 +645,7 @@
                 actualRecord.RefersToTargetUri,
                 actualRecord.ConcurrentTos,
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
@@ -705,9 +693,7 @@
                 actualRecord.RefersToTargetUri,
                 actualRecord.ConcurrentTos,
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
@@ -742,9 +728,7 @@
                 actualRecord.ContentType,
                 actualRecord.Filename,
                 actualRecord.TruncatedReason,
-                actualRecord.DigestFactory)
-            {
-            };
+                actualRecord.DigestFactory);
 
             Assert.Equal(expectedRecord.ContentBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.ContentBlock, actualRecord.ContentBlock);
