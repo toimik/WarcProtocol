@@ -1013,6 +1013,29 @@
             }
         }
 
+        private static void MergeIndividuallyCompressedRecords(string path)
+        {
+            using var outputStream = File.OpenWrite(path);
+            using var compressedStream = new GZipStream(outputStream, CompressionMode.Compress);
+            foreach (string filename in MergeFilenames)
+            {
+                var tempPath = $"{DirectoryForValidRecords}{filename}";
+                using var inputStream = File.OpenRead(tempPath);
+                inputStream.CopyTo(compressedStream);
+            }
+        }
+
+        private static void MergeUncompressedRecords(string path)
+        {
+            using var outputStream = File.OpenWrite(path);
+            foreach (string filename in MergeFilenames)
+            {
+                var tempPath = $"{DirectoryForValidRecords}{filename}";
+                using var inputStream = File.OpenRead(tempPath);
+                inputStream.CopyTo(outputStream);
+            }
+        }
+
         private static string RenameFileExtension(string path, string extension)
         {
             var slashIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
@@ -1099,29 +1122,6 @@
             }
 
             Assert.Equal(recordCount, recordCounter);
-        }
-
-        private void MergeIndividuallyCompressedRecords(string path)
-        {
-            using var outputStream = File.OpenWrite(path);
-            using var compressedStream = new GZipStream(outputStream, CompressionMode.Compress);
-            foreach (string filename in MergeFilenames)
-            {
-                var tempPath = $"{DirectoryForValidRecords}{filename}";
-                using var inputStream = File.OpenRead(tempPath);
-                inputStream.CopyTo(compressedStream);
-            }
-        }
-
-        private void MergeUncompressedRecords(string path)
-        {
-            using var outputStream = File.OpenWrite(path);
-            foreach (string filename in MergeFilenames)
-            {
-                var tempPath = $"{DirectoryForValidRecords}{filename}";
-                using var inputStream = File.OpenRead(tempPath);
-                inputStream.CopyTo(outputStream);
-            }
         }
 
         private class CustomParseLog : IParseLog
