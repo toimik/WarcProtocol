@@ -1042,7 +1042,7 @@
             var periodIndex = path.LastIndexOf(".");
             var length = periodIndex - slashIndex;
             var filename = path.Substring(slashIndex, length);
-            var directory = path.Substring(0, slashIndex);
+            var directory = path[..slashIndex];
             var newPath = $"{directory}{filename}{extension}";
             return newPath;
         }
