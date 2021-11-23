@@ -340,7 +340,6 @@ namespace Toimik.WarcProtocol
 
         private static void SetHeaderFields(Record record, IDictionary<string, string> fieldToValue)
         {
-            fieldToValue.Remove(Record.FieldForType.ToLower());
             foreach (KeyValuePair<string, string> kvp in fieldToValue)
             {
                 record.Set(kvp.Key, kvp.Value);
@@ -367,6 +366,7 @@ namespace Toimik.WarcProtocol
             }
 
             Record record;
+            string recordType = null;
             IDictionary<string, string> fieldToValue = null;
             try
             {
@@ -379,7 +379,7 @@ namespace Toimik.WarcProtocol
 
                 fieldToValue = await Utils.ParseWarcFields(lineReader);
                 ValidateMandatoryHeaderFields(fieldToValue);
-                var recordType = fieldToValue[Record.FieldForType];
+                recordType = fieldToValue[Record.FieldForType];
                 var recordId = fieldToValue[Record.FieldForRecordId];
                 var date = fieldToValue[Record.FieldForDate];
                 record = RecordFactory.CreateRecord(
@@ -387,6 +387,7 @@ namespace Toimik.WarcProtocol
                     recordType,
                     Utils.RemoveBracketsFromUri(recordId),
                     DateTime.Parse(date));
+                fieldToValue.Remove(Record.FieldForType);
                 SetHeaderFields(record, fieldToValue);
                 var contentLength = int.Parse(fieldToValue[Record.FieldForContentLength]);
                 var contentBlock = await ParseContentBlock(lineReader, contentLength);
@@ -397,6 +398,11 @@ namespace Toimik.WarcProtocol
                 var message = ex.Message;
                 if (fieldToValue != null)
                 {
+                    if (recordType != null)
+                    {
+                        fieldToValue.Add(Record.FieldForType, recordType);
+                    }
+
                     message = $"{message}{Environment.NewLine}{Environment.NewLine}Additional debugging info:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, fieldToValue)}";
                 }
 
