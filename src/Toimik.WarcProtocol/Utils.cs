@@ -81,7 +81,7 @@ namespace Toimik.WarcProtocol
                         throw new FormatException(text);
                     }
 
-                    field = line.Substring(0, index).Trim().ToLower();
+                    field = line[..index].Trim().ToLower();
                     isErrorEncountered = field == string.Empty;
                     if (isErrorEncountered)
                     {
