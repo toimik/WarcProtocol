@@ -29,14 +29,15 @@ namespace Toimik.WarcProtocol.Tests
             var payloadTypeIdentifier = new PayloadTypeIdentifier();
             var digestFactory = new DigestFactory("sha1");
             var payloadDigest = Utils.CreateWarcDigest(digestFactory, Encoding.UTF8.GetBytes("foobar"));
+            const string ContentType = "text/plain";
             var infoId = Utils.CreateId();
             var targetUri = new Uri("http://www.example.com");
-
+            var recordBlock = "foo";
             var resourceRecord = new ResourceRecord(
                 now,
                 payloadTypeIdentifier,
-                recordBlock: Encoding.UTF8.GetBytes("foo"),
-                contentType: "text/plain",
+                recordBlock: Encoding.UTF8.GetBytes(recordBlock),
+                ContentType,
                 infoId: infoId,
                 targetUri: targetUri,
                 payloadDigest: payloadDigest);
@@ -44,12 +45,13 @@ namespace Toimik.WarcProtocol.Tests
             Assert.Equal("1.1", resourceRecord.Version);
             Assert.NotNull(resourceRecord.Id);
             Assert.Equal(payloadTypeIdentifier, resourceRecord.PayloadTypeIdentifier);
-            Assert.Equal("foo", Encoding.UTF8.GetString(resourceRecord.RecordBlock));
-            Assert.Equal("text/plain", resourceRecord.ContentType);
+            Assert.Equal(recordBlock, Encoding.UTF8.GetString(resourceRecord.RecordBlock));
+            Assert.Equal(ContentType, resourceRecord.ContentType);
 
+            recordBlock = "bar";
             var continuationRecord = new ContinuationRecord(
                 resourceRecord.Date,
-                recordBlock: Encoding.UTF8.GetBytes("bar"),
+                recordBlock: Encoding.UTF8.GetBytes(recordBlock),
                 resourceRecord.PayloadDigest,
                 resourceRecord.InfoId,
                 resourceRecord.TargetUri,
@@ -59,7 +61,7 @@ namespace Toimik.WarcProtocol.Tests
             Assert.Equal("1.1", continuationRecord.Version);
             Assert.NotNull(continuationRecord.Id);
             Assert.Equal(now, continuationRecord.Date);
-            Assert.Equal("bar", Encoding.UTF8.GetString(continuationRecord.RecordBlock));
+            Assert.Equal(recordBlock, Encoding.UTF8.GetString(continuationRecord.RecordBlock));
             Assert.Equal(payloadDigest, continuationRecord.PayloadDigest);
             Assert.Equal(targetUri, continuationRecord.TargetUri);
             Assert.Equal(infoId, continuationRecord.InfoId);
