@@ -31,12 +31,13 @@ namespace Toimik.WarcProtocol.Tests
             var payloadDigest = Utils.CreateWarcDigest(digestFactory, Encoding.UTF8.GetBytes("foobar"));
             var infoId = Utils.CreateId();
             var targetUri = new Uri("http://www.example.com");
-
+            const string ContentType = "text/plain";
+            var recordBlock = "foo";
             var conversionRecord = new ConversionRecord(
                 now,
                 payloadTypeIdentifier,
-                recordBlock: Encoding.UTF8.GetBytes("foo"),
-                contentType: "text/plain",
+                recordBlock: Encoding.UTF8.GetBytes(recordBlock),
+                ContentType,
                 infoId: infoId,
                 targetUri: targetUri,
                 payloadDigest: payloadDigest);
@@ -44,12 +45,13 @@ namespace Toimik.WarcProtocol.Tests
             Assert.Equal("1.1", conversionRecord.Version);
             Assert.NotNull(conversionRecord.Id);
             Assert.Equal(payloadTypeIdentifier, conversionRecord.PayloadTypeIdentifier);
-            Assert.Equal("foo", Encoding.UTF8.GetString(conversionRecord.RecordBlock));
-            Assert.Equal("text/plain", conversionRecord.ContentType);
+            Assert.Equal(recordBlock, Encoding.UTF8.GetString(conversionRecord.RecordBlock));
+            Assert.Equal(ContentType, conversionRecord.ContentType);
 
+            recordBlock = "bar";
             var continuationRecord = new ContinuationRecord(
                 conversionRecord.Date,
-                recordBlock: Encoding.UTF8.GetBytes("bar"),
+                recordBlock: Encoding.UTF8.GetBytes(recordBlock),
                 conversionRecord.PayloadDigest,
                 conversionRecord.InfoId,
                 conversionRecord.TargetUri,
@@ -59,7 +61,7 @@ namespace Toimik.WarcProtocol.Tests
             Assert.Equal("1.1", continuationRecord.Version);
             Assert.NotNull(continuationRecord.Id);
             Assert.Equal(now, continuationRecord.Date);
-            Assert.Equal("bar", Encoding.UTF8.GetString(continuationRecord.RecordBlock));
+            Assert.Equal(recordBlock, Encoding.UTF8.GetString(continuationRecord.RecordBlock));
             Assert.Equal(payloadDigest, continuationRecord.PayloadDigest);
             Assert.Equal(targetUri, continuationRecord.TargetUri);
             Assert.Equal(infoId, continuationRecord.InfoId);
