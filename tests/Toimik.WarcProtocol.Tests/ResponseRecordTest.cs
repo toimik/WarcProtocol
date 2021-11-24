@@ -11,8 +11,7 @@
         {
             var now = DateTime.Now;
             var payloadTypeIdentifier = new PayloadTypeIdentifier();
-            var text = "HTTP/1.1 200 OK";
-            var contentBlock = Encoding.UTF8.GetBytes(text);
+            var contentBlock = Encoding.UTF8.GetBytes("HTTP/1.1 200 OK");
             var digestFactory = new DigestFactory("sha1");
             var payloadDigest = Utils.CreateWarcDigest(digestFactory, contentBlock);
             var contentType = "application/http;msgtype=response";
