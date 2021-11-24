@@ -14,14 +14,14 @@
             var contentBlock = Encoding.UTF8.GetBytes("HTTP/1.1 200 OK");
             var digestFactory = new DigestFactory("sha1");
             var payloadDigest = Utils.CreateWarcDigest(digestFactory, contentBlock);
-            var contentType = "application/http;msgtype=response";
+            const string ContentType = "application/http;msgtype=response";
             var infoId = Utils.CreateId();
             var targetUri = new Uri("http://www.example.com");
             var record = new ResponseRecord(
                 now,
                 payloadTypeIdentifier,
                 contentBlock,
-                contentType: contentType,
+                ContentType,
                 infoId: infoId,
                 targetUri: targetUri,
                 payloadDigest: payloadDigest);
@@ -32,7 +32,7 @@
             Assert.Equal(payloadTypeIdentifier, record.PayloadTypeIdentifier);
             Assert.Equal(contentBlock, record.ContentBlock);
             Assert.Equal(payloadDigest, record.PayloadDigest);
-            Assert.Equal(contentType, record.ContentType);
+            Assert.Equal(ContentType, record.ContentType);
             Assert.Equal(infoId, record.InfoId);
             Assert.Equal(targetUri, record.TargetUri);
             Assert.Empty(record.Payload);
