@@ -403,7 +403,7 @@ namespace Toimik.WarcProtocol
                         fieldToValue.Add(Record.FieldForType, recordType);
                     }
 
-                    message = $"{message}{Environment.NewLine}{Environment.NewLine}Additional debugging info:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, fieldToValue)}";
+                    message = $"{message}{Environment.NewLine}{Environment.NewLine}Headers:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, fieldToValue)}";
                 }
 
                 throw new FormatException(message);
