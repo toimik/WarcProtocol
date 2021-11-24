@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Toimik.WarcProtocol</AssemblyName>
-    <PackageVersion>0.2.2</PackageVersion>
+    <PackageVersion>0.2.3</PackageVersion>
     <Authors>Nurhafiz</Authors>
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Company>Toimik</Company>
     <Description>

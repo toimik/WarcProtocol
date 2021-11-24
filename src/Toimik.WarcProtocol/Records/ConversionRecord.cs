@@ -162,7 +162,14 @@ namespace Toimik.WarcProtocol
 
         public bool IsSegmented() => SegmentNumber != 0;
 
-        internal override void Set(string field, string value)
+        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
+        {
+            base.SetContentBlock(contentBlock, isParsed);
+            RecordBlock = contentBlock;
+            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(RecordBlock);
+        }
+
+        protected internal override void Set(string field, string value)
         {
             // NOTE: FieldForIdentifiedPayloadType, if any, is ignored because it is supposed to be
             // auto detected when the content block is set
@@ -198,13 +205,6 @@ namespace Toimik.WarcProtocol
                     base.Set(field, value);
                     break;
             }
-        }
-
-        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
-        {
-            base.SetContentBlock(contentBlock, isParsed);
-            RecordBlock = contentBlock;
-            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(RecordBlock);
         }
 
         protected override string GetHeader(string field)

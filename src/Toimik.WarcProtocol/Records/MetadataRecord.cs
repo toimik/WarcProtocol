@@ -148,7 +148,16 @@ namespace Toimik.WarcProtocol
 
         public override string Type => "Metadata";
 
-        internal override void Set(string field, string value)
+        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
+        {
+            base.SetContentBlock(contentBlock, isParsed);
+            if (isParsed)
+            {
+                ContentBlock = Encoding.UTF8.GetString(contentBlock);
+            }
+        }
+
+        protected internal override void Set(string field, string value)
         {
             switch (field.ToLower())
             {
@@ -181,15 +190,6 @@ namespace Toimik.WarcProtocol
                 default:
                     base.Set(field, value);
                     break;
-            }
-        }
-
-        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
-        {
-            base.SetContentBlock(contentBlock, isParsed);
-            if (isParsed)
-            {
-                ContentBlock = Encoding.UTF8.GetString(contentBlock);
             }
         }
 

@@ -164,7 +164,26 @@ namespace Toimik.WarcProtocol
 
         public override string Type => "Request";
 
-        internal override void Set(string field, string value)
+        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
+        {
+            base.SetContentBlock(contentBlock, isParsed);
+            var index = Utils.IndexOfPayload(contentBlock);
+            if (index == -1)
+            {
+                RecordBlock = Encoding.UTF8.GetString(contentBlock);
+                Payload = Array.Empty<byte>();
+            }
+            else
+            {
+                RecordBlock = Encoding.UTF8.GetString(contentBlock[0..index]);
+                Payload = contentBlock[(index + (WarcParser.CrLf.Length * 2))..];
+            }
+
+            ContentBlock = contentBlock;
+            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
+        }
+
+        protected internal override void Set(string field, string value)
         {
             // NOTE: FieldForIdentifiedPayloadType, if any, is ignored because it is supposed to be
             // auto detected when the content block is set
@@ -200,25 +219,6 @@ namespace Toimik.WarcProtocol
                     base.Set(field, value);
                     break;
             }
-        }
-
-        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
-        {
-            base.SetContentBlock(contentBlock, isParsed);
-            var index = Utils.IndexOfPayload(contentBlock);
-            if (index == -1)
-            {
-                RecordBlock = Encoding.UTF8.GetString(contentBlock);
-                Payload = Array.Empty<byte>();
-            }
-            else
-            {
-                RecordBlock = Encoding.UTF8.GetString(contentBlock[0..index]);
-                Payload = contentBlock[(index + (WarcParser.CrLf.Length * 2))..];
-            }
-
-            ContentBlock = contentBlock;
-            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
         }
 
         protected override string GetHeader(string field)
