@@ -55,31 +55,55 @@
     <None Update="Data\Invalid\premature_wo_trailing_newline.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\continuation.warc">
+    <None Update="Data\Valid\1.0\continuation.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\conversion.warc">
+    <None Update="Data\Valid\1.0\conversion.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\metadata.warc">
+    <None Update="Data\Valid\1.0\metadata.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\request.warc">
+    <None Update="Data\Valid\1.0\request.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\resource.warc">
+    <None Update="Data\Valid\1.0\resource.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\response.warc">
+    <None Update="Data\Valid\1.0\response.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\revisit_identical.warc">
+    <None Update="Data\Valid\1.0\revisit_identical.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\revisit_unmodified.warc">
+    <None Update="Data\Valid\1.0\revisit_unmodified.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Valid\warcinfo.warc">
+    <None Update="Data\Valid\1.1\continuation.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\conversion.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\metadata.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\request.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\resource.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\response.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\revisit_identical.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\revisit_unmodified.warc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Valid\1.1\warcinfo.warc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

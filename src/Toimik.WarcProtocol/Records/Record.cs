@@ -42,7 +42,7 @@ namespace Toimik.WarcProtocol
             string truncatedReason = null,
             DigestFactory digestFactory = null)
         {
-            Version = version;
+            Version = version.Trim();
             Id = recordId;
             Date = date;
             OrderedFields = orderedFields;

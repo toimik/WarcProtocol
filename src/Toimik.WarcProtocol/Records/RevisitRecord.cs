@@ -198,7 +198,9 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForProfile:
-                    Profile = new(value);
+                    Profile = Version.Equals("1.0")
+                        ? Utils.RemoveBracketsFromUri(value)
+                        : new(value);
                     break;
 
                 case FieldForRefersTo:
@@ -214,7 +216,9 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForTargetUri:
-                    TargetUri = new(value);
+                    TargetUri = Version.Equals("1.0")
+                        ? Utils.RemoveBracketsFromUri(value)
+                        : new(value);
                     break;
 
                 default:
@@ -270,7 +274,10 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForProfile:
-                    text = ToString("WARC-Profile", Profile);
+                    var profile = Version.Equals("1.0")
+                        ? Utils.AddBracketsToUri(Profile)
+                        : Profile.ToString();
+                    text = ToString("WARC-Profile", profile);
                     break;
 
                 case FieldForRecordId:
@@ -290,7 +297,10 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForTargetUri:
-                    text = ToString("WARC-Target-URI", TargetUri);
+                    var targetUri = Version.Equals("1.0")
+                        ? Utils.AddBracketsToUri(TargetUri)
+                        : TargetUri.ToString();
+                    text = ToString("WARC-Target-URI", targetUri);
                     break;
 
                 case FieldForTruncated:

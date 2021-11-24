@@ -20,6 +20,8 @@
 
         private static readonly string DirectoryForInvalidRecords = $"Data{Path.DirectorySeparatorChar}Invalid{Path.DirectorySeparatorChar}";
 
+        private static readonly string DirectoryForValid1Point1Records = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}1.1{Path.DirectorySeparatorChar}";
+
         private static readonly string DirectoryForValidRecords = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}";
 
         private static readonly ISet<string> MergeFilenames = new HashSet<string>
@@ -229,7 +231,7 @@
             string tempCompressedFile = null;
             try
             {
-                var path = $"{DirectoryForValidRecords}{filename}";
+                var path = $"{DirectoryForValid1Point1Records}{filename}";
                 tempCompressedFile = CompressFile(path);
 
                 await TestFile(tempCompressedFile, recordCount: 1);
@@ -366,11 +368,13 @@
             Assert.Equal("foobar", Encoding.UTF8.GetString(record.RecordBlock));
         }
 
-        [Fact]
-        public async Task RecordForContinuationThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForContinuationThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}continuation.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}continuation.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -393,7 +397,7 @@
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-            AssertContinuationRecord(actualRecord);
+            AssertContinuationRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -405,11 +409,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForConversionThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForConversionThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}conversion.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}conversion.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -436,7 +442,7 @@
             // NOTE: See remarks #1
             Assert.Null(actualRecord.IdentifiedPayloadType);
 
-            AssertConversionRecord(actualRecord);
+            AssertConversionRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -449,11 +455,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForMetadataThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForMetadataThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}metadata.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}metadata.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -476,7 +484,7 @@
             Assert.Equal(expectedRecord.ContentBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.ContentBlock, actualRecord.ContentBlock);
 
-            AssertMetadataRecord(actualRecord);
+            AssertMetadataRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -488,11 +496,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForRequestThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForRequestThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}request.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}request.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -517,7 +527,7 @@
             Assert.Null(expectedRecord.IdentifiedPayloadType);
             Assert.Null(actualRecord.IdentifiedPayloadType);
 
-            AssertRequestRecord(actualRecord);
+            AssertRequestRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -530,11 +540,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForResourceThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForResourceThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}resource.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}resource.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -562,7 +574,7 @@
             // NOTE: See remarks #1
             Assert.Null(actualRecord.IdentifiedPayloadType);
 
-            AssertResourceRecord(actualRecord);
+            AssertResourceRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -575,11 +587,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForResponseThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForResponseThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}response.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}response.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -607,7 +621,7 @@
             // NOTE: See remarks #1
             Assert.Null(actualRecord.IdentifiedPayloadType);
 
-            AssertResponseRecord(actualRecord);
+            AssertResponseRecord(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -620,11 +634,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForRevisitOfIdenticalThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForRevisitOfIdenticalThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}revisit_identical.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}revisit_identical.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -650,7 +666,7 @@
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-            AssertRevisitRecordForIdentical(actualRecord);
+            AssertRevisitRecordForIdentical(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -668,11 +684,13 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        [Fact]
-        public async Task RecordForRevisitOfUnmodifiedThatIsUncompressed()
+        [Theory]
+        [InlineData("1.0")]
+        [InlineData("1.1")]
+        public async Task RecordForRevisitOfUnmodifiedThatIsUncompressed(string version)
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}revisit_unmodified.warc";
+            var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}revisit_unmodified.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -698,7 +716,7 @@
             Assert.Equal(expectedRecord.RecordBlock.Length, actualRecord.ContentLength);
             Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-            AssertRevisitRecordForUnmodified(actualRecord);
+            AssertRevisitRecordForUnmodified(actualRecord, version);
 
             var fields = AssertHeaderAndToString(
                 actualRecord,
@@ -714,7 +732,7 @@
         public async Task RecordForWarcinfoThatIsUncompressed()
         {
             var parser = new WarcParser();
-            var path = $"{DirectoryForValidRecords}warcinfo.warc";
+            var path = $"{DirectoryForValid1Point1Records}warcinfo.warc";
             var parseLog = new CustomParseLog();
 
             var records = await parser.Parse(path, parseLog).ToListAsync();
@@ -745,9 +763,9 @@
             Assert.Equal(expectedHeader, actualHeader);
         }
 
-        private static void AssertContinuationRecord(ContinuationRecord record)
+        private static void AssertContinuationRecord(ContinuationRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:C767A59C4DBC7430855F7BF1468D495376E92C3D", record.BlockDigest);
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
             Assert.Equal("sha1:CB927B7C7DE7DA663A68973E0C034FFBE6A98BF4", record.PayloadDigest);
@@ -761,9 +779,9 @@
             Assert.Equal(83, record.ContentLength);
         }
 
-        private static void AssertConversionRecord(ConversionRecord record)
+        private static void AssertConversionRecord(ConversionRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:14688051DB31569CB48D9C36C818B593A5228916", record.BlockDigest);
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
             Assert.Equal(new Uri("urn:uuid:07d18ee8-5a5e-43e1-9ff9-320a994141fd"), record.Id);
@@ -802,9 +820,9 @@
             return actualFields;
         }
 
-        private static void AssertMetadataRecord(MetadataRecord record)
+        private static void AssertMetadataRecord(MetadataRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:25EEDCA9AC3593DBDB2E3B5D69219231A8824257", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:25809bd7-a7e7-4a97-81b5-d7d9747f3eaf")));
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
@@ -819,9 +837,9 @@
             Assert.Equal(record.ContentType, actualContentType);
         }
 
-        private static void AssertRequestRecord(RequestRecord record)
+        private static void AssertRequestRecord(RequestRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:85FFD42680A33B720124A4D29E6CB4F8C2798C92", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
@@ -836,9 +854,9 @@
             Assert.Equal(record.ContentType, actualContentType);
         }
 
-        private static void AssertResourceRecord(ResourceRecord record)
+        private static void AssertResourceRecord(ResourceRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:231AD621E019B0108B5886A3ABFDDB6D8F9477D2", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:25809bd7-a7e7-4a97-81b5-d7d9747f3eaf")));
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
@@ -855,9 +873,9 @@
             Assert.Equal("text/dns", actualContentType);
         }
 
-        private static void AssertResponseRecord(ResponseRecord record)
+        private static void AssertResponseRecord(ResponseRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:335680BF19511379DB8BAB0C3F3D92318751C0C4", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:672baea5-b4cd-49e3-9ce7-6cdf93513d54")));
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
@@ -873,9 +891,9 @@
             Assert.Equal(record.ContentType, actualContentType);
         }
 
-        private static void AssertRevisitRecordForIdentical(RevisitRecord record)
+        private static void AssertRevisitRecordForIdentical(RevisitRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:DA39A3EE5E6B4B0D3255BFEF95601890AFD80709", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
             Assert.Equal(DateTime.Parse("2001-02-01T01:23:45Z"), record.Date);
@@ -894,9 +912,9 @@
             Assert.Equal("application/octet-stream", actualContentType);
         }
 
-        private static void AssertRevisitRecordForUnmodified(RevisitRecord record)
+        private static void AssertRevisitRecordForUnmodified(RevisitRecord record, string version)
         {
-            Assert.Equal("1.1", record.Version);
+            Assert.Equal(version, record.Version);
             Assert.Equal("sha1:241E0040D1186D236DFC2DDCC80BD712DE038268", record.BlockDigest);
             Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
             Assert.Equal(DateTime.Parse("2002-03-01T03:45:06Z"), record.Date);
@@ -1003,7 +1021,7 @@
             using var compressedStream = new GZipStream(outputStream, CompressionMode.Compress);
             foreach (string filename in MergeFilenames)
             {
-                var tempPath = $"{DirectoryForValidRecords}{filename}";
+                var tempPath = $"{DirectoryForValid1Point1Records}{filename}";
                 using var inputStream = File.OpenRead(tempPath);
                 inputStream.CopyTo(compressedStream);
             }
@@ -1014,7 +1032,7 @@
             using var outputStream = File.OpenWrite(path);
             foreach (string filename in MergeFilenames)
             {
-                var tempPath = $"{DirectoryForValidRecords}{filename}";
+                var tempPath = $"{DirectoryForValid1Point1Records}{filename}";
                 using var inputStream = File.OpenRead(tempPath);
                 inputStream.CopyTo(outputStream);
             }
@@ -1043,7 +1061,7 @@
                 switch (record.Type.ToLower())
                 {
                     case "continuation":
-                        AssertContinuationRecord((ContinuationRecord)record);
+                        AssertContinuationRecord((ContinuationRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
@@ -1053,24 +1071,24 @@
                         // NOTE: See remarks #1
                         Assert.Null(conversionRecord.IdentifiedPayloadType);
 
-                        AssertConversionRecord(conversionRecord);
+                        AssertConversionRecord(conversionRecord, version: "1.1");
                         recordCounter++;
                         break;
 
                     case "metadata":
-                        AssertMetadataRecord((MetadataRecord)record);
+                        AssertMetadataRecord((MetadataRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
                     case "request":
                         var requestRecord = (RequestRecord)record;
                         Assert.Null(requestRecord.IdentifiedPayloadType);
-                        AssertRequestRecord(requestRecord);
+                        AssertRequestRecord(requestRecord, version: "1.1");
                         recordCounter++;
                         break;
 
                     case "resource":
-                        AssertResourceRecord((ResourceRecord)record);
+                        AssertResourceRecord((ResourceRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
@@ -1080,7 +1098,7 @@
                         // NOTE: See remarks #1
                         Assert.Null(responseRecord.IdentifiedPayloadType);
 
-                        AssertResponseRecord(responseRecord);
+                        AssertResponseRecord(responseRecord, version: "1.1");
                         recordCounter++;
                         break;
 
@@ -1088,11 +1106,11 @@
                         var revisitRecord = (RevisitRecord)record;
                         if (revisitRecord.ContentLength == 0)
                         {
-                            AssertRevisitRecordForIdentical(revisitRecord);
+                            AssertRevisitRecordForIdentical(revisitRecord, version: "1.1");
                         }
                         else
                         {
-                            AssertRevisitRecordForUnmodified(revisitRecord);
+                            AssertRevisitRecordForUnmodified(revisitRecord, version: "1.1");
                         }
 
                         recordCounter++;

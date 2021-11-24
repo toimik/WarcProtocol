@@ -208,7 +208,9 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForTargetUri:
-                    TargetUri = new(value);
+                    TargetUri = Version.Equals("1.0")
+                        ? Utils.RemoveBracketsFromUri(value)
+                        : new(value);
                     break;
 
                 default:
@@ -290,7 +292,10 @@ namespace Toimik.WarcProtocol
                     break;
 
                 case FieldForTargetUri:
-                    text = ToString("WARC-Target-URI", TargetUri);
+                    var targetUri = Version.Equals("1.0")
+                        ? Utils.AddBracketsToUri(TargetUri)
+                        : TargetUri.ToString();
+                    text = ToString("WARC-Target-URI", targetUri);
                     break;
 
                 case FieldForTruncated:
