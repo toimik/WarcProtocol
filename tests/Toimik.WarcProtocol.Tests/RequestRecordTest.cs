@@ -37,7 +37,6 @@
             Assert.Equal(contentType, record.ContentType);
             Assert.Equal(infoId, record.InfoId);
             Assert.Equal(targetUri, record.TargetUri);
-
             Assert.Equal(payload, Encoding.UTF8.GetString(record.Payload));
         }
     }
