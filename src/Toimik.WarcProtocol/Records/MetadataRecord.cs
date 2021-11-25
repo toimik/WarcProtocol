@@ -37,6 +37,8 @@ namespace Toimik.WarcProtocol
 
         public const string FieldForTargetUri = "warc-target-uri";
 
+        public const string TypeName = "metadata";
+
         internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
         {
             FieldForType,
@@ -146,7 +148,7 @@ namespace Toimik.WarcProtocol
 
         public Uri TargetUri { get; private set; }
 
-        public override string Type => "Metadata";
+        public override string Type => TypeName;
 
         internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
         {

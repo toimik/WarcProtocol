@@ -40,6 +40,8 @@ namespace Toimik.WarcProtocol
 
         public const string FieldForTargetUri = "warc-target-uri";
 
+        public const string TypeName = "resource";
+
         internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
         {
             FieldForType,
@@ -168,7 +170,7 @@ namespace Toimik.WarcProtocol
 
         public Uri TargetUri { get; private set; }
 
-        public override string Type => "Resource";
+        public override string Type => TypeName;
 
         public bool IsSegmented() => SegmentNumber != 0;
 

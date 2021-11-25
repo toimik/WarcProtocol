@@ -28,6 +28,8 @@ namespace Toimik.WarcProtocol
 
         public const string FieldForFilename = "warc-filename";
 
+        public const string TypeName = "warcinfo";
+
         internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
         {
             FieldForType,
@@ -111,7 +113,7 @@ namespace Toimik.WarcProtocol
 
         public string Filename { get; private set; }
 
-        public override string Type => "Warcinfo";
+        public override string Type => TypeName;
 
         internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
         {

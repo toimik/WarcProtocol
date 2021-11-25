@@ -25,10 +25,10 @@ namespace Toimik.WarcProtocol
         public virtual string Identify(Record record)
         {
             string contentType = null;
-            var recordType = record.Type.ToLower();
+            var recordType = record.Type;
             switch (recordType)
             {
-                case "resource":
+                case ResourceRecord.TypeName:
                     var targetUri = ((ResourceRecord)record).TargetUri;
                     if (targetUri != null
                         && targetUri.Scheme.Equals("dns"))
@@ -38,8 +38,8 @@ namespace Toimik.WarcProtocol
 
                     break;
 
-                case "request":
-                case "response":
+                case RequestRecord.TypeName:
+                case ResponseRecord.TypeName:
                     targetUri = record is RequestRecord requestRecord
                         ? requestRecord.TargetUri
                         : ((ResponseRecord)record).TargetUri;
@@ -51,8 +51,8 @@ namespace Toimik.WarcProtocol
 
                     break;
 
-                case "metadata":
-                case "warcinfo":
+                case MetadataRecord.TypeName:
+                case WarcinfoRecord.TypeName:
                     contentType = "application/warc-fields";
                     break;
             }

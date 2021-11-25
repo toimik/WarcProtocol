@@ -363,7 +363,7 @@
             Assert.Equal("1.1", record.Version);
             Assert.Equal(DateTime.Parse("2001-01-01T12:34:56Z"), record.Date);
             Assert.Equal(new Uri("urn:uuid:1a59c5c8-d806-4cdb-83aa-b21495d11063"), record.Id);
-            Assert.Equal("Resource", record.Type);
+            Assert.Equal(ResourceRecord.TypeName, record.Type);
             Assert.Equal(6, record.ContentLength);
             Assert.Equal("foobar", Encoding.UTF8.GetString(record.RecordBlock));
         }
@@ -774,7 +774,7 @@
             Assert.Equal(new Uri("urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890"), record.SegmentOriginId);
             Assert.Equal(217, record.SegmentTotalLength);
             Assert.Equal(new Uri("dns://example.com"), record.TargetUri);
-            Assert.Equal("Continuation", record.Type);
+            Assert.Equal(ContinuationRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(83, record.ContentLength);
         }
@@ -788,7 +788,7 @@
             Assert.Equal(new Uri("urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890"), record.RefersTo);
             Assert.Equal(1, record.SegmentNumber);
             Assert.Equal(new Uri("file://var/www/htdoc/robots.txt"), record.TargetUri);
-            Assert.Equal("Conversion", record.Type);
+            Assert.Equal(ConversionRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(41, record.ContentLength);
             Assert.Equal("text/plain", record.ContentType);
@@ -830,7 +830,7 @@
             Assert.Equal(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221"), record.RefersTo);
             Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
             Assert.Equal(new Uri("http://www.example.com"), record.TargetUri);
-            Assert.Equal("Metadata", record.Type);
+            Assert.Equal(MetadataRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(62, record.ContentLength);
             var actualContentType = new ContentTypeIdentifier().Identify(record);
@@ -846,7 +846,7 @@
             Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
             Assert.Equal("sha1:DA39A3EE5E6B4B0D3255BFEF95601890AFD80709", record.PayloadDigest);
             Assert.Equal(new Uri("urn:uuid:672baea5-b4cd-49e3-9ce7-6cdf93513d54"), record.Id);
-            Assert.Equal("Request", record.Type);
+            Assert.Equal(RequestRecord.TypeName, record.Type);
             Assert.Equal(new Uri("http://www.example.com"), record.TargetUri);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(190, record.ContentLength);
@@ -864,7 +864,7 @@
             Assert.Equal("sha1:CB927B7C7DE7DA663A68973E0C034FFBE6A98BF4", record.PayloadDigest);
             Assert.Equal(new Uri("urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890"), record.Id);
             Assert.Equal(new Uri("dns://example.com"), record.TargetUri);
-            Assert.Equal("Resource", record.Type);
+            Assert.Equal(ResourceRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(174, record.ContentLength);
             Assert.Equal(1, record.SegmentNumber);
@@ -884,7 +884,7 @@
             Assert.Equal(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221"), record.Id);
             Assert.Equal(1, record.SegmentNumber);
             Assert.Equal(new Uri("http://www.example.com"), record.TargetUri);
-            Assert.Equal("Response", record.Type);
+            Assert.Equal(ResponseRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(1679, record.ContentLength);
             var actualContentType = new ContentTypeIdentifier().Identify(record);
@@ -904,7 +904,7 @@
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.RefersToDate);
             Assert.Equal(new Uri("http://www.example.com"), record.RefersToTargetUri);
             Assert.Equal(new Uri("http://www.example.com"), record.TargetUri);
-            Assert.Equal("Revisit", record.Type);
+            Assert.Equal(RevisitRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(0, record.ContentLength);
             Assert.Equal("irrelevant/but-still-parsed-for-preservation", record.ContentType);
@@ -925,7 +925,7 @@
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.RefersToDate);
             Assert.Equal(new Uri("http://www.example.com"), record.RefersToTargetUri);
             Assert.Equal(new Uri("http://www.example.com"), record.TargetUri);
-            Assert.Equal("Revisit", record.Type);
+            Assert.Equal(RevisitRecord.TypeName, record.Type);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
             Assert.Equal(198, record.ContentLength);
             Assert.Equal("message/http", record.ContentType);
@@ -940,7 +940,7 @@
             Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
             Assert.Equal("warcinfo.warc", record.Filename);
             Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.Id);
-            Assert.Equal("Warcinfo", record.Type);
+            Assert.Equal(WarcinfoRecord.TypeName, record.Type);
             Assert.Equal(241, record.ContentLength);
             var actualContentType = new ContentTypeIdentifier().Identify(record);
             Assert.Equal(record.ContentType, actualContentType);
@@ -1058,14 +1058,14 @@
             var parser = new WarcParser(compressionStreamFactory: compressionStreamFactory);
             await foreach (WarcProtocol.Record record in parser.Parse(path))
             {
-                switch (record.Type.ToLower())
+                switch (record.Type)
                 {
-                    case "continuation":
+                    case ContinuationRecord.TypeName:
                         AssertContinuationRecord((ContinuationRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
-                    case "conversion":
+                    case ConversionRecord.TypeName:
                         var conversionRecord = (ConversionRecord)record;
 
                         // NOTE: See remarks #1
@@ -1075,24 +1075,24 @@
                         recordCounter++;
                         break;
 
-                    case "metadata":
+                    case MetadataRecord.TypeName:
                         AssertMetadataRecord((MetadataRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
-                    case "request":
+                    case RequestRecord.TypeName:
                         var requestRecord = (RequestRecord)record;
                         Assert.Null(requestRecord.IdentifiedPayloadType);
                         AssertRequestRecord(requestRecord, version: "1.1");
                         recordCounter++;
                         break;
 
-                    case "resource":
+                    case ResourceRecord.TypeName:
                         AssertResourceRecord((ResourceRecord)record, version: "1.1");
                         recordCounter++;
                         break;
 
-                    case "response":
+                    case ResponseRecord.TypeName:
                         var responseRecord = (ResponseRecord)record;
 
                         // NOTE: See remarks #1
@@ -1102,7 +1102,7 @@
                         recordCounter++;
                         break;
 
-                    case "revisit":
+                    case RevisitRecord.TypeName:
                         var revisitRecord = (RevisitRecord)record;
                         if (revisitRecord.ContentLength == 0)
                         {
@@ -1116,7 +1116,7 @@
                         recordCounter++;
                         break;
 
-                    case "warcinfo":
+                    case WarcinfoRecord.TypeName:
                         AssertWarcinfoRecord((WarcinfoRecord)record);
                         recordCounter++;
                         break;

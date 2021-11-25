@@ -38,46 +38,46 @@ namespace Toimik.WarcProtocol
         {
             Record record = recordType.ToLower() switch
             {
-                "continuation" => new ContinuationRecord(
+                ContinuationRecord.TypeName => new ContinuationRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory),
-                "conversion" => new ConversionRecord(
+                ConversionRecord.TypeName => new ConversionRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory,
                     PayloadTypeIdentifier),
-                "metadata" => new MetadataRecord(
+                MetadataRecord.TypeName => new MetadataRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory),
-                "request" => new RequestRecord(
+                RequestRecord.TypeName => new RequestRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory,
                     PayloadTypeIdentifier),
-                "resource" => new ResourceRecord(
+                ResourceRecord.TypeName => new ResourceRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory,
                     PayloadTypeIdentifier),
-                "response" => new ResponseRecord(
+                ResponseRecord.TypeName => new ResponseRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory,
                     PayloadTypeIdentifier),
-                "revisit" => new RevisitRecord(
+                RevisitRecord.TypeName => new RevisitRecord(
                     version,
                     recordId,
                     date,
                     DigestFactory),
-                "warcinfo" => new WarcinfoRecord(
+                WarcinfoRecord.TypeName => new WarcinfoRecord(
                     version,
                     recordId,
                     date,

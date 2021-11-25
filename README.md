@@ -61,44 +61,44 @@ class Program
 
         await foreach (WarcProtocol.Record record in records)
         {
-            switch (record.Type.ToLower())
+            switch (record.Type)
             {
-                case "continuation":
+                case ContinuationRecord.TypeName:
 
                     // ...
                     break;
 
-                case "conversion":
+                case ConversionRecord.TypeName:
 
                     // ...
                     break;
 
-                case "metadata":
+                case MetadataRecord.TypeName:
 
                     // ...
                     break;
 
-                case "request":
+                case RequestRecord.TypeName:
 
                     // ...
                     break;
 
-                case "resource":
+                case ResourceRecord.TypeName:
 
                     // ...
                     break;
 
-                case "response":
+                case ResponseRecord.TypeName:
 
                     // ...
                     break;
 
-                case "revisit":
+                case RevisitRecord.TypeName:
 
                     // ...
                     break;
 
-                case "warcinfo":
+                case WarcinfoRecord.TypeName:
 
                     // ...
                     break;
