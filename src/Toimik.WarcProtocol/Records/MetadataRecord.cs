@@ -118,17 +118,17 @@ namespace Toimik.WarcProtocol
             ConcurrentTos = concurrentTos;
         }
 
-        internal MetadataRecord(
-            string version,
-            Uri recordId,
-            DateTime date,
-            DigestFactory digestFactory)
-            : base(
-                  version,
-                  recordId,
-                  date,
-                  DefaultOrderedFields,
-                  digestFactory: digestFactory)
+        protected internal MetadataRecord(
+             string version,
+             Uri recordId,
+             DateTime date,
+             DigestFactory digestFactory)
+             : base(
+                   version,
+                   recordId,
+                   date,
+                   DefaultOrderedFields,
+                   digestFactory: digestFactory)
         {
         }
 
