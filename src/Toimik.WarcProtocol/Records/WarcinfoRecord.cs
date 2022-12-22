@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,171 +16,170 @@
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Toimik.WarcProtocol.Tests")]
 
-namespace Toimik.WarcProtocol
+namespace Toimik.WarcProtocol;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+public class WarcinfoRecord : Record
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+    public const string FieldForContentType = "content-type";
 
-    public class WarcinfoRecord : Record
+    public const string FieldForFilename = "warc-filename";
+
+    public const string TypeName = "warcinfo";
+
+    internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
     {
-        public const string FieldForContentType = "content-type";
+        FieldForType,
+        FieldForRecordId,
+        FieldForDate,
+        FieldForContentLength,
+        FieldForContentType,
+        FieldForBlockDigest,
+        FieldForTruncated,
+        FieldForFilename,
+    };
 
-        public const string FieldForFilename = "warc-filename";
+    public WarcinfoRecord(
+        DateTime date,
+        string contentBlock,
+        string contentType,
+        string? filename = null,
+        string? truncatedReason = null,
+        DigestFactory? digestFactory = null)
+        : this(
+              "1.1",
+              Utils.CreateId(),
+              date,
+              contentBlock,
+              contentType,
+              filename,
+              truncatedReason,
+              digestFactory)
+    {
+    }
 
-        public const string TypeName = "warcinfo";
+    public WarcinfoRecord(
+       string version,
+       Uri recordId,
+       DateTime date,
+       string contentBlock,
+       string contentType,
+       string? filename = null,
+       string? truncatedReason = null,
+       DigestFactory? digestFactory = null)
+       : base(
+             version,
+             recordId,
+             date,
+             DefaultOrderedFields,
+             truncatedReason,
+             digestFactory)
+    {
+        ContentBlock = contentBlock;
+        var bytes = Encoding.UTF8.GetBytes(ContentBlock);
+        var isParsed = false;
+        SetContentBlock(bytes, isParsed);
 
-        internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
+        if (contentBlock.Length > 0)
         {
-            FieldForType,
-            FieldForRecordId,
-            FieldForDate,
-            FieldForContentLength,
-            FieldForContentType,
-            FieldForBlockDigest,
-            FieldForTruncated,
-            FieldForFilename,
-        };
-
-        public WarcinfoRecord(
-            DateTime date,
-            string contentBlock,
-            string contentType,
-            string filename = null,
-            string truncatedReason = null,
-            DigestFactory digestFactory = null)
-            : this(
-                  "1.1",
-                  Utils.CreateId(),
-                  date,
-                  contentBlock,
-                  contentType,
-                  filename,
-                  truncatedReason,
-                  digestFactory)
-        {
+            ContentType = contentType;
         }
 
-        public WarcinfoRecord(
-           string version,
-           Uri recordId,
-           DateTime date,
-           string contentBlock,
-           string contentType,
-           string filename = null,
-           string truncatedReason = null,
-           DigestFactory digestFactory = null)
-           : base(
-                 version,
-                 recordId,
-                 date,
-                 DefaultOrderedFields,
-                 truncatedReason,
-                 digestFactory)
+        Filename = filename;
+    }
+
+    internal WarcinfoRecord(
+        string version,
+        Uri recordId,
+        DateTime date,
+        DigestFactory digestFactory)
+        : base(
+              version,
+              recordId,
+              date,
+              DefaultOrderedFields,
+              digestFactory: digestFactory)
+    {
+    }
+
+    // NOTE: May contain technical information such as base encoding of the digests used in
+    // named fields
+    public string? ContentBlock { get; private set; }
+
+    public string? ContentType { get; private set; }
+
+    public string? Filename { get; private set; }
+
+    public override string Type => TypeName;
+
+    internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
+    {
+        base.SetContentBlock(contentBlock, isParsed);
+        if (isParsed)
         {
-            ContentBlock = contentBlock;
-            var bytes = Encoding.UTF8.GetBytes(ContentBlock);
-            var isParsed = false;
-            SetContentBlock(bytes, isParsed);
+            ContentBlock = Encoding.UTF8.GetString(contentBlock);
+        }
+    }
 
-            if (contentBlock.Length > 0)
-            {
-                ContentType = contentType;
-            }
+    protected internal override void Set(string field, string value)
+    {
+        switch (field.ToLower())
+        {
+            case FieldForContentType:
+                ContentType = value;
+                break;
 
-            Filename = filename;
+            case FieldForFilename:
+                Filename = value;
+                break;
+
+            default:
+                base.Set(field, value);
+                break;
+        }
+    }
+
+    protected override string? GetHeader(string orderedField)
+    {
+        string? text = null;
+        switch (orderedField.ToLower())
+        {
+            case FieldForBlockDigest:
+                text = ToString("WARC-Block-Digest", BlockDigest);
+                break;
+
+            case FieldForContentLength:
+                text = $"Content-Length: {ContentLength}{WarcParser.CrLf}";
+                break;
+
+            case FieldForContentType:
+                text = ToString("Content-Type", ContentType);
+                break;
+
+            case FieldForDate:
+                text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
+                break;
+
+            case FieldForFilename:
+                text = ToString("WARC-Filename", Filename);
+                break;
+
+            case FieldForRecordId:
+                text = $"WARC-Record-ID: {Utils.AddBracketsToUri(Id)}{WarcParser.CrLf}";
+                break;
+
+            case FieldForTruncated:
+                text = ToString("WARC-Truncated", TruncatedReason);
+                break;
+
+            case FieldForType:
+                text = $"WARC-Type: {Type.ToString().ToLower()}{WarcParser.CrLf}";
+                break;
         }
 
-        internal WarcinfoRecord(
-            string version,
-            Uri recordId,
-            DateTime date,
-            DigestFactory digestFactory)
-            : base(
-                  version,
-                  recordId,
-                  date,
-                  DefaultOrderedFields,
-                  digestFactory: digestFactory)
-        {
-        }
-
-        // NOTE: May contain technical information such as base encoding of the digests used in
-        // named fields
-        public string ContentBlock { get; private set; }
-
-        public string ContentType { get; private set; }
-
-        public string Filename { get; private set; }
-
-        public override string Type => TypeName;
-
-        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
-        {
-            base.SetContentBlock(contentBlock, isParsed);
-            if (isParsed)
-            {
-                ContentBlock = Encoding.UTF8.GetString(contentBlock);
-            }
-        }
-
-        protected internal override void Set(string field, string value)
-        {
-            switch (field.ToLower())
-            {
-                case FieldForContentType:
-                    ContentType = value;
-                    break;
-
-                case FieldForFilename:
-                    Filename = value;
-                    break;
-
-                default:
-                    base.Set(field, value);
-                    break;
-            }
-        }
-
-        protected override string GetHeader(string orderedField)
-        {
-            string text = null;
-            switch (orderedField.ToLower())
-            {
-                case FieldForBlockDigest:
-                    text = ToString("WARC-Block-Digest", BlockDigest);
-                    break;
-
-                case FieldForContentLength:
-                    text = $"Content-Length: {ContentLength}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForContentType:
-                    text = ToString("Content-Type", ContentType);
-                    break;
-
-                case FieldForDate:
-                    text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForFilename:
-                    text = ToString("WARC-Filename", Filename);
-                    break;
-
-                case FieldForRecordId:
-                    text = $"WARC-Record-ID: {Utils.AddBracketsToUri(Id)}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForTruncated:
-                    text = ToString("WARC-Truncated", TruncatedReason);
-                    break;
-
-                case FieldForType:
-                    text = $"WARC-Type: {Type.ToString().ToLower()}{WarcParser.CrLf}";
-                    break;
-            }
-
-            return text;
-        }
+        return text;
     }
 }

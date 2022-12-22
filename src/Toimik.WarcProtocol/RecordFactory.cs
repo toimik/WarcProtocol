@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,78 +14,78 @@
  * limitations under the License.
  */
 
-namespace Toimik.WarcProtocol
+namespace Toimik.WarcProtocol;
+
+using System;
+
+public class RecordFactory
 {
-    using System;
-
-    public class RecordFactory
+    public RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
     {
-        public RecordFactory(DigestFactory digestFactory = null, PayloadTypeIdentifier payloadTypeIdentifier = null)
+        DigestFactory = digestFactory ?? new DigestFactory("sha1");
+        PayloadTypeIdentifier = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
+    }
+
+    public DigestFactory DigestFactory { get; }
+
+    public PayloadTypeIdentifier PayloadTypeIdentifier { get; }
+
+    public virtual Record CreateRecord(
+        string version,
+        string recordType,
+        Uri recordId,
+        DateTime date)
+    {
+        recordType = recordType.ToLower();
+        Record? record = recordType switch
         {
-            DigestFactory = digestFactory ?? new DigestFactory("sha1");
-            PayloadTypeIdentifier = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
-        }
+            ContinuationRecord.TypeName => new ContinuationRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory),
+            ConversionRecord.TypeName => new ConversionRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory,
+                PayloadTypeIdentifier),
+            MetadataRecord.TypeName => new MetadataRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory),
+            RequestRecord.TypeName => new RequestRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory,
+                PayloadTypeIdentifier),
+            ResourceRecord.TypeName => new ResourceRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory,
+                PayloadTypeIdentifier),
+            ResponseRecord.TypeName => new ResponseRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory,
+                PayloadTypeIdentifier),
+            RevisitRecord.TypeName => new RevisitRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory),
+            WarcinfoRecord.TypeName => new WarcinfoRecord(
+                version,
+                recordId,
+                date,
+                DigestFactory),
+            _ => throw new ArgumentException($"Unsupported record type: {recordType}"),
+        };
 
-        public DigestFactory DigestFactory { get; }
-
-        public PayloadTypeIdentifier PayloadTypeIdentifier { get; }
-
-        public virtual Record CreateRecord(
-            string version,
-            string recordType,
-            Uri recordId,
-            DateTime date)
-        {
-            Record record = recordType.ToLower() switch
-            {
-                ContinuationRecord.TypeName => new ContinuationRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory),
-                ConversionRecord.TypeName => new ConversionRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory,
-                    PayloadTypeIdentifier),
-                MetadataRecord.TypeName => new MetadataRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory),
-                RequestRecord.TypeName => new RequestRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory,
-                    PayloadTypeIdentifier),
-                ResourceRecord.TypeName => new ResourceRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory,
-                    PayloadTypeIdentifier),
-                ResponseRecord.TypeName => new ResponseRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory,
-                    PayloadTypeIdentifier),
-                RevisitRecord.TypeName => new RevisitRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory),
-                WarcinfoRecord.TypeName => new WarcinfoRecord(
-                    version,
-                    recordId,
-                    date,
-                    DigestFactory),
-                _ => null,
-            };
-
-            return record;
-        }
+        return record;
     }
 }

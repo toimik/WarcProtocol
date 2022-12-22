@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-namespace Toimik.WarcProtocol
+namespace Toimik.WarcProtocol;
+
+using System.IO;
+using System.IO.Compression;
+
+public class CompressionStreamFactory
 {
-    using System.IO;
-    using System.IO.Compression;
-
-    public class CompressionStreamFactory
+    public CompressionStreamFactory()
     {
-        public CompressionStreamFactory()
-        {
-        }
+    }
 
-        public virtual Stream CreateDecompressStream(Stream stream)
-        {
-            return new GZipStream(
-                stream,
-                CompressionMode.Decompress,
-                leaveOpen: true);
-        }
+    public virtual Stream CreateDecompressStream(Stream stream)
+    {
+        return new GZipStream(
+            stream,
+            CompressionMode.Decompress,
+            leaveOpen: true);
     }
 }

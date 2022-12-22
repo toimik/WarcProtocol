@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,234 +16,237 @@
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Toimik.WarcProtocol.Tests")]
 
-namespace Toimik.WarcProtocol
+namespace Toimik.WarcProtocol;
+
+using System;
+using System.Collections.Generic;
+
+public class ContinuationRecord : Record
 {
-    using System;
-    using System.Collections.Generic;
+    public const string FieldForInfoId = "warc-warcinfo-id";
 
-    public class ContinuationRecord : Record
+    public const string FieldForPayloadDigest = "warc-payload-digest";
+
+    public const string FieldForSegmentNumber = "warc-segment-number";
+
+    public const string FieldForSegmentOriginId = "warc-segment-origin-id";
+
+    public const string FieldForSegmentTotalLength = "warc-segment-total-length";
+
+    public const string FieldForTargetUri = "warc-target-uri";
+
+    public const string TypeName = "continuation";
+
+    internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
     {
-        public const string FieldForInfoId = "warc-warcinfo-id";
+        FieldForType,
+        FieldForRecordId,
+        FieldForDate,
+        FieldForContentLength,
+        FieldForBlockDigest,
+        FieldForPayloadDigest,
+        FieldForTargetUri,
+        FieldForTruncated,
+        FieldForInfoId,
+        FieldForSegmentOriginId,
+        FieldForSegmentNumber,
+        FieldForSegmentTotalLength,
+    };
 
-        public const string FieldForPayloadDigest = "warc-payload-digest";
+    public ContinuationRecord(
+        DateTime date,
+        byte[] recordBlock,
+        string payloadDigest,
+        Uri infoId,
+        Uri targetUri,
+        Uri segmentOriginId,
+        int segmentNumber,
+        int? segmentTotalLength = null,
+        string? truncatedReason = null,
+        DigestFactory? digestFactory = null)
+        : this(
+              "1.1",
+              Utils.CreateId(),
+              date,
+              recordBlock,
+              payloadDigest,
+              infoId,
+              targetUri,
+              segmentOriginId,
+              segmentNumber,
+              segmentTotalLength,
+              truncatedReason,
+              digestFactory)
+    {
+    }
 
-        public const string FieldForSegmentNumber = "warc-segment-number";
+    public ContinuationRecord(
+        string version,
+        Uri recordId,
+        DateTime date,
+        byte[] recordBlock,
+        string payloadDigest,
+        Uri infoId,
+        Uri targetUri,
+        Uri segmentOriginId,
+        int segmentNumber,
+        int? segmentTotalLength = null,
+        string? truncatedReason = null,
+        DigestFactory? digestFactory = null)
+        : base(
+              version,
+              recordId,
+              date,
+              DefaultOrderedFields,
+              truncatedReason,
+              digestFactory)
+    {
+        var isParsed = false;
+        SetContentBlock(recordBlock, isParsed);
 
-        public const string FieldForSegmentOriginId = "warc-segment-origin-id";
+        // REMINDER: This is not auto-generated because it must be identical to the source's
+        PayloadDigest = payloadDigest;
+        InfoId = infoId;
+        TargetUri = targetUri;
+        SegmentOriginId = segmentOriginId;
+        SegmentNumber = segmentNumber;
+        SegmentTotalLength = segmentTotalLength;
+    }
 
-        public const string FieldForSegmentTotalLength = "warc-segment-total-length";
+    internal ContinuationRecord(
+        string version,
+        Uri recordId,
+        DateTime date,
+        DigestFactory digestFactory)
+        : base(
+              version,
+              recordId,
+              date,
+              DefaultOrderedFields,
+              digestFactory: digestFactory)
+    {
+    }
 
-        public const string FieldForTargetUri = "warc-target-uri";
+    public Uri? InfoId { get; private set; }
 
-        public const string TypeName = "continuation";
+    public string? PayloadDigest { get; private set; }
 
-        internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
+    public byte[]? RecordBlock { get; private set; }
+
+    public int SegmentNumber { get; private set; }
+
+    public Uri? SegmentOriginId { get; private set; }
+
+    // NOTE: Applicable to the last continuation in the series only
+    public int? SegmentTotalLength { get; private set; }
+
+    public Uri? TargetUri { get; private set; }
+
+    public override string Type => TypeName;
+
+    internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
+    {
+        base.SetContentBlock(contentBlock, isParsed);
+        RecordBlock = contentBlock;
+    }
+
+    protected internal override void Set(string field, string value)
+    {
+        switch (field.ToLower())
         {
-            FieldForType,
-            FieldForRecordId,
-            FieldForDate,
-            FieldForContentLength,
-            FieldForBlockDigest,
-            FieldForPayloadDigest,
-            FieldForTargetUri,
-            FieldForTruncated,
-            FieldForInfoId,
-            FieldForSegmentOriginId,
-            FieldForSegmentNumber,
-            FieldForSegmentTotalLength,
-        };
+            case FieldForInfoId:
+                InfoId = Utils.RemoveBracketsFromUri(value);
+                break;
 
-        public ContinuationRecord(
-            DateTime date,
-            byte[] recordBlock,
-            string payloadDigest,
-            Uri infoId,
-            Uri targetUri,
-            Uri segmentOriginId,
-            int segmentNumber,
-            int? segmentTotalLength = null,
-            string truncatedReason = null,
-            DigestFactory digestFactory = null)
-            : this(
-                  "1.1",
-                  Utils.CreateId(),
-                  date,
-                  recordBlock,
-                  payloadDigest,
-                  infoId,
-                  targetUri,
-                  segmentOriginId,
-                  segmentNumber,
-                  segmentTotalLength,
-                  truncatedReason,
-                  digestFactory)
-        {
+            case FieldForPayloadDigest:
+                PayloadDigest = value;
+                break;
+
+            case FieldForSegmentOriginId:
+                SegmentOriginId = Utils.RemoveBracketsFromUri(value);
+                break;
+
+            case FieldForSegmentNumber:
+                SegmentNumber = int.Parse(value);
+                break;
+
+            case FieldForSegmentTotalLength:
+                SegmentTotalLength = int.Parse(value);
+                break;
+
+            case FieldForTargetUri:
+                TargetUri = Version.Equals("1.0")
+                    ? Utils.RemoveBracketsFromUri(value)
+                    : new(value);
+                break;
+
+            default:
+                base.Set(field, value);
+                break;
         }
+    }
 
-        public ContinuationRecord(
-            string version,
-            Uri recordId,
-            DateTime date,
-            byte[] recordBlock,
-            string payloadDigest,
-            Uri infoId,
-            Uri targetUri,
-            Uri segmentOriginId,
-            int segmentNumber,
-            int? segmentTotalLength = null,
-            string truncatedReason = null,
-            DigestFactory digestFactory = null)
-            : base(
-                  version,
-                  recordId,
-                  date,
-                  DefaultOrderedFields,
-                  truncatedReason,
-                  digestFactory)
+    protected override string? GetHeader(string field)
+    {
+        string? text = null;
+        switch (field.ToLower())
         {
-            var isParsed = false;
-            SetContentBlock(recordBlock, isParsed);
+            case FieldForBlockDigest:
+                text = ToString("WARC-Block-Digest", BlockDigest);
+                break;
 
-            // REMINDER: This is not auto-generated because it must be identical to the source's
-            PayloadDigest = payloadDigest;
-            InfoId = infoId;
-            TargetUri = targetUri;
-            SegmentOriginId = segmentOriginId;
-            SegmentNumber = segmentNumber;
-            SegmentTotalLength = segmentTotalLength;
-        }
+            case FieldForContentLength:
+                text = $"Content-Length: {ContentLength}{WarcParser.CrLf}";
+                break;
 
-        internal ContinuationRecord(
-            string version,
-            Uri recordId,
-            DateTime date,
-            DigestFactory digestFactory)
-            : base(
-                  version,
-                  recordId,
-                  date,
-                  DefaultOrderedFields,
-                  digestFactory: digestFactory)
-        {
-        }
+            case FieldForDate:
+                text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
+                break;
 
-        public Uri InfoId { get; private set; }
+            case FieldForInfoId:
+                text = ToString("WARC-Warcinfo-ID", Utils.AddBracketsToUri(InfoId));
+                break;
 
-        public string PayloadDigest { get; private set; }
+            case FieldForPayloadDigest:
+                text = ToString("WARC-Payload-Digest", PayloadDigest);
+                break;
 
-        public byte[] RecordBlock { get; private set; }
+            case FieldForRecordId:
+                text = $"WARC-Record-ID: {Utils.AddBracketsToUri(Id)}{WarcParser.CrLf}";
+                break;
 
-        public int SegmentNumber { get; private set; }
+            case FieldForSegmentNumber:
+                text = ToString("WARC-Segment-Number", SegmentNumber);
+                break;
 
-        public Uri SegmentOriginId { get; private set; }
+            case FieldForSegmentOriginId:
+                text = ToString("WARC-Segment-Origin-ID", Utils.AddBracketsToUri(SegmentOriginId));
+                break;
 
-        // NOTE: Applicable to the last continuation in the series only
-        public int? SegmentTotalLength { get; private set; }
+            case FieldForSegmentTotalLength:
+                text = ToString("WARC-Segment-Total-Length", SegmentTotalLength);
+                break;
 
-        public Uri TargetUri { get; private set; }
-
-        public override string Type => TypeName;
-
-        internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
-        {
-            base.SetContentBlock(contentBlock, isParsed);
-            RecordBlock = contentBlock;
-        }
-
-        protected internal override void Set(string field, string value)
-        {
-            switch (field.ToLower())
-            {
-                case FieldForInfoId:
-                    InfoId = Utils.RemoveBracketsFromUri(value);
-                    break;
-
-                case FieldForPayloadDigest:
-                    PayloadDigest = value;
-                    break;
-
-                case FieldForSegmentOriginId:
-                    SegmentOriginId = Utils.RemoveBracketsFromUri(value);
-                    break;
-
-                case FieldForSegmentNumber:
-                    SegmentNumber = int.Parse(value);
-                    break;
-
-                case FieldForSegmentTotalLength:
-                    SegmentTotalLength = int.Parse(value);
-                    break;
-
-                case FieldForTargetUri:
-                    TargetUri = Version.Equals("1.0")
-                        ? Utils.RemoveBracketsFromUri(value)
-                        : new(value);
-                    break;
-
-                default:
-                    base.Set(field, value);
-                    break;
-            }
-        }
-
-        protected override string GetHeader(string field)
-        {
-            string text = null;
-            switch (field.ToLower())
-            {
-                case FieldForBlockDigest:
-                    text = ToString("WARC-Block-Digest", BlockDigest);
-                    break;
-
-                case FieldForContentLength:
-                    text = $"Content-Length: {ContentLength}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForDate:
-                    text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForInfoId:
-                    text = ToString("WARC-Warcinfo-ID", Utils.AddBracketsToUri(InfoId));
-                    break;
-
-                case FieldForPayloadDigest:
-                    text = ToString("WARC-Payload-Digest", PayloadDigest);
-                    break;
-
-                case FieldForRecordId:
-                    text = $"WARC-Record-ID: {Utils.AddBracketsToUri(Id)}{WarcParser.CrLf}";
-                    break;
-
-                case FieldForSegmentNumber:
-                    text = ToString("WARC-Segment-Number", SegmentNumber);
-                    break;
-
-                case FieldForSegmentOriginId:
-                    text = ToString("WARC-Segment-Origin-ID", Utils.AddBracketsToUri(SegmentOriginId));
-                    break;
-
-                case FieldForSegmentTotalLength:
-                    text = ToString("WARC-Segment-Total-Length", SegmentTotalLength);
-                    break;
-
-                case FieldForTargetUri:
+            case FieldForTargetUri:
+                if (TargetUri != null)
+                {
                     var targetUri = Version.Equals("1.0")
                         ? Utils.AddBracketsToUri(TargetUri)
                         : TargetUri.ToString();
                     text = ToString("WARC-Target-URI", targetUri);
-                    break;
+                }
 
-                case FieldForTruncated:
-                    text = ToString("WARC-Truncated", TruncatedReason);
-                    break;
+                break;
 
-                case FieldForType:
-                    text = $"WARC-Type: {Type.ToString().ToLower()}{WarcParser.CrLf}";
-                    break;
-            }
+            case FieldForTruncated:
+                text = ToString("WARC-Truncated", TruncatedReason);
+                break;
 
-            return text;
+            case FieldForType:
+                text = $"WARC-Type: {Type.ToString().ToLower()}{WarcParser.CrLf}";
+                break;
         }
+
+        return text;
     }
 }

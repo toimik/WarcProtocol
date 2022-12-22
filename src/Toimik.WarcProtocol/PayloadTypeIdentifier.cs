@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-namespace Toimik.WarcProtocol
-{
-    public class PayloadTypeIdentifier
-    {
-        public PayloadTypeIdentifier()
-        {
-        }
+namespace Toimik.WarcProtocol;
 
-        public virtual string Identify(byte[] payload)
-        {
-            // NOTE: This method is not implemented
-            return null;
-        }
+public class PayloadTypeIdentifier
+{
+    public PayloadTypeIdentifier()
+    {
+    }
+
+    public virtual string? Identify(byte[] payload)
+    {
+        // NOTE: This method is not implemented
+        return null;
     }
 }

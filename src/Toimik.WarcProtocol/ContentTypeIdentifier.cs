@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021 nurhafiz@hotmail.sg
+ * Copyright 2021-2022 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,51 +14,50 @@
  * limitations under the License.
  */
 
-namespace Toimik.WarcProtocol
+namespace Toimik.WarcProtocol;
+
+public class ContentTypeIdentifier
 {
-    public class ContentTypeIdentifier
+    public ContentTypeIdentifier()
     {
-        public ContentTypeIdentifier()
+    }
+
+    public virtual string Identify(Record record)
+    {
+        string? contentType = null;
+        var recordType = record.Type;
+        switch (recordType)
         {
+            case ResourceRecord.TypeName:
+                var targetUri = ((ResourceRecord)record).TargetUri;
+                if (targetUri != null
+                    && targetUri.Scheme.Equals("dns"))
+                {
+                    contentType = "text/dns";
+                }
+
+                break;
+
+            case RequestRecord.TypeName:
+            case ResponseRecord.TypeName:
+                targetUri = record is RequestRecord requestRecord
+                    ? requestRecord.TargetUri
+                    : ((ResponseRecord)record).TargetUri;
+                if (targetUri != null
+                    && targetUri.Scheme.StartsWith("http"))
+                {
+                    contentType = $"application/http;msgtype={recordType}";
+                }
+
+                break;
+
+            case MetadataRecord.TypeName:
+            case WarcinfoRecord.TypeName:
+                contentType = "application/warc-fields";
+                break;
         }
 
-        public virtual string Identify(Record record)
-        {
-            string contentType = null;
-            var recordType = record.Type;
-            switch (recordType)
-            {
-                case ResourceRecord.TypeName:
-                    var targetUri = ((ResourceRecord)record).TargetUri;
-                    if (targetUri != null
-                        && targetUri.Scheme.Equals("dns"))
-                    {
-                        contentType = "text/dns";
-                    }
-
-                    break;
-
-                case RequestRecord.TypeName:
-                case ResponseRecord.TypeName:
-                    targetUri = record is RequestRecord requestRecord
-                        ? requestRecord.TargetUri
-                        : ((ResponseRecord)record).TargetUri;
-                    if (targetUri != null
-                        && targetUri.Scheme.StartsWith("http"))
-                    {
-                        contentType = $"application/http;msgtype={recordType}";
-                    }
-
-                    break;
-
-                case MetadataRecord.TypeName:
-                case WarcinfoRecord.TypeName:
-                    contentType = "application/warc-fields";
-                    break;
-            }
-
-            contentType ??= "application/octet-stream";
-            return contentType;
-        }
+        contentType ??= "application/octet-stream";
+        return contentType;
     }
 }
