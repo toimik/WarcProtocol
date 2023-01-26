@@ -61,9 +61,8 @@ public class LineReader
         var readBytes = new List<byte>();
         do
         {
-            CancellationToken.ThrowIfCancellationRequested();
             var buffer = new byte[1];
-            var readCount = await Stream.ReadAsync(buffer.AsMemory(start: 0, length: 1)).ConfigureAwait(false);
+            var readCount = await Stream.ReadAsync(buffer.AsMemory(start: 0, length: 1), CancellationToken).ConfigureAwait(false);
             var isEofEncountered = readCount == 0;
             if (isEofEncountered)
             {

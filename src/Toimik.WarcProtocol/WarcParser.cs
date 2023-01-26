@@ -254,8 +254,7 @@ public sealed class WarcParser
         var hasReadAllData = remainder == 0;
         while (!hasReadAllData)
         {
-            lineReader.CancellationToken.ThrowIfCancellationRequested();
-            readCount = await lineReader.Stream.ReadAsync(contentBlock.AsMemory(readCount, remainder)).ConfigureAwait(false);
+            readCount = await lineReader.Stream.ReadAsync(contentBlock.AsMemory(readCount, remainder), lineReader.CancellationToken).ConfigureAwait(false);
             var isEofEncountered = readCount == 0;
             remainder -= readCount;
             hasReadAllData = remainder == 0;
