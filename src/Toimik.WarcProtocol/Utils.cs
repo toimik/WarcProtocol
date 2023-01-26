@@ -90,10 +90,10 @@ public class Utils
                 }
 
                 var value = line[(index + 1)..].Trim();
-                var hasProcessedField = processedFieldToValue.ContainsKey(field);
-                isErrorEncountered = hasProcessedField
+                processedFieldToValue.TryGetValue(field, out string? existingValue);
+                isErrorEncountered = existingValue != null
                     && !field.Equals("warc-concurrent-to")
-                    && !processedFieldToValue[field].Equals(value);
+                    && !existingValue.Equals(value);
                 if (isErrorEncountered)
                 {
                     // Except for WARC-Concurrent-To, having duplicate header fields is
@@ -103,7 +103,7 @@ public class Utils
                     throw new FormatException(text);
                 }
 
-                if (!hasProcessedField)
+                if (existingValue == null)
                 {
                     processedFieldToValue.Add(field, value);
                     fieldToValue.Add(field, value);
