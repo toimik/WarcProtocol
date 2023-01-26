@@ -251,19 +251,20 @@ public sealed class WarcParser
          * the characters up to the buffer's length
          */
 
-        var hasReadAllData = remainder == 0;
-        while (!hasReadAllData)
+        bool hasReadAllData;
+        do
         {
             readCount = await lineReader.Stream.ReadAsync(contentBlock.AsMemory(readCount, remainder), lineReader.CancellationToken).ConfigureAwait(false);
             var isEofEncountered = readCount == 0;
-            remainder -= readCount;
-            hasReadAllData = remainder == 0;
-            if (isEofEncountered
-                || hasReadAllData)
+            if (isEofEncountered)
             {
                 break;
             }
+
+            remainder -= readCount;
+            hasReadAllData = remainder == 0;
         }
+        while (!hasReadAllData);
 
         var hasMissingData = remainder > 0;
         if (hasMissingData)
