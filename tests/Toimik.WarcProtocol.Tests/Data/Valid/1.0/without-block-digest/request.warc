@@ -1,0 +1,20 @@
+WARC/1.0
+WARC-Concurrent-To: <urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221>
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-IP-Address: 1.23.45.67
+WARC-Payload-Digest: sha1:DA39A3EE5E6B4B0D3255BFEF95601890AFD80709
+WARC-Record-ID: <urn:uuid:672baea5-b4cd-49e3-9ce7-6cdf93513d54>
+WARC-Type: request
+WARC-Target-URI: <http://www.example.com>
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Identified-Payload-Type: foo/bar
+Content-Length: 190
+Content-Type: application/http;msgtype=request
+WARC-Truncated: foobar
+
+GET / HTTP/1.1
+Connection: Keep-Alive
+Host: www.example.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+
+

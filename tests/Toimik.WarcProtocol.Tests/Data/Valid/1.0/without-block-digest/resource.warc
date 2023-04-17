@@ -1,0 +1,23 @@
+WARC/1.0
+WARC-Concurrent-To: <urn:uuid:25809bd7-a7e7-4a97-81b5-d7d9747f3eaf>
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-IP-Address: 127.0.0.1
+WARC-Payload-Digest: sha1:CB927B7C7DE7DA663A68973E0C034FFBE6A98BF4
+WARC-Record-ID: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Segment-Number: 1
+WARC-Target-URI: <dns://example.com>
+WARC-Type: resource
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Identified-Payload-Type: text/plain
+Content-Length: 174
+Content-Type: text/dns
+WARC-Segment-Number: 1
+WARC-Truncated: foobar
+
+20000509000739
+example.com.     185 IN  A   209.1.22.239
+example.com.     185 IN  A   209.1.22.238
+
+# This record has a continuation. This payload takes that into account
+
+

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2023 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,7 @@ public abstract class Record
         Date = date;
         OrderedFields = orderedFields;
         TruncatedReason = truncatedReason;
-
-        // TODO: As the block digest is optional, a default should not be set
-        DigestFactory = digestFactory ?? new DigestFactory("sha1");
+        DigestFactory = digestFactory;
     }
 
     public string? BlockDigest { get; private set; }
@@ -59,10 +57,9 @@ public abstract class Record
     public DateTime Date { get; private set; }
 
     /// <summary>
-    /// The <see cref="DigestFactory"/>, if any, to be applied to the block.
+    /// The <see cref="DigestFactory"/>, if any, to be applied to the content block.
     /// </summary>
-    /// TODO: This should be nullable
-    public DigestFactory DigestFactory { get; }
+    public DigestFactory? DigestFactory { get; }
 
     public Uri Id { get; private set; }
 
@@ -110,7 +107,10 @@ public abstract class Record
         if (!isParsed)
         {
             ContentLength = contentBlock.Length;
-            BlockDigest = Utils.CreateWarcDigest(DigestFactory, contentBlock);
+            if (DigestFactory != null)
+            {
+                BlockDigest = Utils.CreateWarcDigest(DigestFactory, contentBlock);
+            }
         }
     }
 

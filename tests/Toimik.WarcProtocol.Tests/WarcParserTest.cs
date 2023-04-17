@@ -369,17 +369,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForContinuationThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForContinuationThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}continuation.warc";
+        var path = CreatePath(
+            "continuation.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (ContinuationRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new ContinuationRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -392,16 +398,24 @@ public class WarcParserTest
             actualRecord.SegmentNumber,
             actualRecord.SegmentTotalLength,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
         Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-        AssertContinuationRecord(actualRecord, version);
-
-        var fields = AssertHeaderAndToString(
+        AssertContinuationRecord(
             actualRecord,
-            ContinuationRecord.DefaultOrderedFields);
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = ContinuationRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
+
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -410,17 +424,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForConversionThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForConversionThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}conversion.warc";
+        var path = CreatePath(
+            "conversion.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (ConversionRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new ConversionRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -434,7 +454,7 @@ public class WarcParserTest
             actualRecord.RefersTo,
             actualRecord.IsSegmented(),
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
         Assert.Null(expectedRecord.IdentifiedPayloadType);
@@ -442,11 +462,21 @@ public class WarcParserTest
         // NOTE: See remarks #1
         Assert.Null(actualRecord.IdentifiedPayloadType);
 
-        AssertConversionRecord(actualRecord, version);
+        AssertConversionRecord(
+            actualRecord,
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = ConversionRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
 
         var fields = AssertHeaderAndToString(
             actualRecord,
-            ConversionRecord.DefaultOrderedFields,
+            orderedFields,
             hasIgnoredIdentifiedPayloadType: true);
 
         fields.Sort();
@@ -456,17 +486,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForMetadataThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForMetadataThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}metadata.warc";
+        var path = CreatePath(
+            "metadata.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (MetadataRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new MetadataRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -479,16 +515,24 @@ public class WarcParserTest
             actualRecord.RefersTo,
             actualRecord.ConcurrentTos,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
         Assert.Equal(expectedRecord.ContentBlock, actualRecord.ContentBlock);
 
-        AssertMetadataRecord(actualRecord, version);
-
-        var fields = AssertHeaderAndToString(
+        AssertMetadataRecord(
             actualRecord,
-            MetadataRecord.DefaultOrderedFields);
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = MetadataRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
+
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -497,17 +541,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForRequestThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForRequestThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}request.warc";
+        var path = CreatePath(
+            "request.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (RequestRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new RequestRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -521,17 +571,27 @@ public class WarcParserTest
             actualRecord.IpAddress,
             actualRecord.ConcurrentTos,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
         Assert.Null(expectedRecord.IdentifiedPayloadType);
         Assert.Null(actualRecord.IdentifiedPayloadType);
 
-        AssertRequestRecord(actualRecord, version);
+        AssertRequestRecord(
+            actualRecord,
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = RequestRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
 
         var fields = AssertHeaderAndToString(
             actualRecord,
-            RequestRecord.DefaultOrderedFields,
+            orderedFields,
             hasIgnoredIdentifiedPayloadType: true);
 
         fields.Sort();
@@ -541,17 +601,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForResourceThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForResourceThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}resource.warc";
+        var path = CreatePath(
+            "resource.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (ResourceRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new ResourceRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -566,7 +632,7 @@ public class WarcParserTest
             actualRecord.ConcurrentTos,
             actualRecord.IsSegmented(),
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
         Assert.Null(actualRecord.IdentifiedPayloadType);
@@ -574,11 +640,21 @@ public class WarcParserTest
         // NOTE: See remarks #1
         Assert.Null(actualRecord.IdentifiedPayloadType);
 
-        AssertResourceRecord(actualRecord, version);
+        AssertResourceRecord(
+            actualRecord,
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = ResourceRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
 
         var fields = AssertHeaderAndToString(
             actualRecord,
-            ResourceRecord.DefaultOrderedFields,
+            orderedFields,
             hasIgnoredIdentifiedPayloadType: true);
 
         fields.Sort();
@@ -588,17 +664,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForResponseThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForResponseThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}response.warc";
+        var path = CreatePath(
+            "response.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (ResponseRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new ResponseRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -613,7 +695,7 @@ public class WarcParserTest
             actualRecord.ConcurrentTos,
             actualRecord.IsSegmented(),
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
         Assert.Null(expectedRecord.IdentifiedPayloadType);
@@ -621,11 +703,21 @@ public class WarcParserTest
         // NOTE: See remarks #1
         Assert.Null(actualRecord.IdentifiedPayloadType);
 
-        AssertResponseRecord(actualRecord, version);
+        AssertResponseRecord(
+            actualRecord,
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = ResponseRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
 
         var fields = AssertHeaderAndToString(
             actualRecord,
-            ResponseRecord.DefaultOrderedFields,
+            orderedFields,
             hasIgnoredIdentifiedPayloadType: true);
 
         fields.Sort();
@@ -635,17 +727,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForRevisitOfIdenticalThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForRevisitOfIdenticalThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}revisit_identical.warc";
+        var path = CreatePath(
+            "revisit_identical.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (RevisitRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new RevisitRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -661,16 +759,24 @@ public class WarcParserTest
             actualRecord.RefersToTargetUri,
             actualRecord.ConcurrentTos,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
         Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-        AssertRevisitRecordForIdentical(actualRecord, version);
-
-        var fields = AssertHeaderAndToString(
+        AssertRevisitRecordForIdentical(
             actualRecord,
-            RevisitRecord.DefaultOrderedFields);
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = RevisitRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
+
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -685,17 +791,23 @@ public class WarcParserTest
     }
 
     [Theory]
-    [InlineData("1.0")]
-    [InlineData("1.1")]
-    public async Task RecordForRevisitOfUnmodifiedThatIsUncompressed(string version)
+    [InlineData("1.0", false)]
+    [InlineData("1.0", true)]
+    [InlineData("1.1", false)]
+    [InlineData("1.1", true)]
+    public async Task RecordForRevisitOfUnmodifiedThatIsUncompressed(string version, bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}revisit_unmodified.warc";
+        var path = CreatePath(
+            "revisit_unmodified.warc",
+            version,
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (RevisitRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new RevisitRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -711,16 +823,24 @@ public class WarcParserTest
             actualRecord.RefersToTargetUri,
             actualRecord.ConcurrentTos,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
         Assert.Equal(expectedRecord.RecordBlock, actualRecord.RecordBlock);
 
-        AssertRevisitRecordForUnmodified(actualRecord, version);
-
-        var fields = AssertHeaderAndToString(
+        AssertRevisitRecordForUnmodified(
             actualRecord,
-            RevisitRecord.DefaultOrderedFields);
+            version,
+            isWithoutBlockDigest);
+
+        var orderedFields = RevisitRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
+
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -728,16 +848,22 @@ public class WarcParserTest
         Assert.Equal(expectedHeader, actualHeader);
     }
 
-    [Fact]
-    public async Task RecordForWarcinfoThatIsUncompressed()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RecordForWarcinfoThatIsUncompressed(bool isWithoutBlockDigest)
     {
         var parser = new WarcParser();
-        var path = $"{DirectoryForValid1Point1Records}warcinfo.warc";
+        var path = CreatePath(
+            "warcinfo.warc",
+            version: "1.1",
+            isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
         var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
         var actualRecord = (WarcinfoRecord)records[0];
 
+        var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
         var expectedRecord = new WarcinfoRecord(
             actualRecord.Version,
             actualRecord.Id,
@@ -746,16 +872,21 @@ public class WarcParserTest
             actualRecord.ContentType!,
             actualRecord.Filename,
             actualRecord.TruncatedReason,
-            actualRecord.DigestFactory);
+            digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
         Assert.Equal(expectedRecord.ContentBlock, actualRecord.ContentBlock);
 
-        AssertWarcinfoRecord(actualRecord);
+        AssertWarcinfoRecord(actualRecord, isWithoutBlockDigest);
 
-        var fields = AssertHeaderAndToString(
-            actualRecord,
-            WarcinfoRecord.DefaultOrderedFields);
+        var orderedFields = WarcinfoRecord.DefaultOrderedFields;
+        if (isWithoutBlockDigest)
+        {
+            orderedFields = new List<string>(orderedFields);
+            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+        }
+
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -763,10 +894,17 @@ public class WarcParserTest
         Assert.Equal(expectedHeader, actualHeader);
     }
 
-    private static void AssertContinuationRecord(ContinuationRecord record, string version)
+    private static void AssertContinuationRecord(
+        ContinuationRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:C767A59C4DBC7430855F7BF1468D495376E92C3D", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:C767A59C4DBC7430855F7BF1468D495376E92C3D", record.BlockDigest);
+        }
+
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal("sha1:CB927B7C7DE7DA663A68973E0C034FFBE6A98BF4", record.PayloadDigest);
         Assert.Equal(new Uri("urn:uuid:6a59c5c8-d806-4cdb-83aa-b21495d11063"), record.Id);
@@ -779,10 +917,17 @@ public class WarcParserTest
         Assert.Equal(83, record.ContentLength);
     }
 
-    private static void AssertConversionRecord(ConversionRecord record, string version)
+    private static void AssertConversionRecord(
+        ConversionRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:14688051DB31569CB48D9C36C818B593A5228916", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:14688051DB31569CB48D9C36C818B593A5228916", record.BlockDigest);
+        }
+
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal(new Uri("urn:uuid:07d18ee8-5a5e-43e1-9ff9-320a994141fd"), record.Id);
         Assert.Equal(new Uri("urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890"), record.RefersTo);
@@ -820,10 +965,17 @@ public class WarcParserTest
         return actualFields;
     }
 
-    private static void AssertMetadataRecord(MetadataRecord record, string version)
+    private static void AssertMetadataRecord(
+        MetadataRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:25EEDCA9AC3593DBDB2E3B5D69219231A8824257", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:25EEDCA9AC3593DBDB2E3B5D69219231A8824257", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:25809bd7-a7e7-4a97-81b5-d7d9747f3eaf")));
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal(new Uri("urn:uuid:90c6fd91-f744-4818-95d1-693f933d2214"), record.Id);
@@ -837,10 +989,17 @@ public class WarcParserTest
         Assert.Equal(record.ContentType, actualContentType);
     }
 
-    private static void AssertRequestRecord(RequestRecord record, string version)
+    private static void AssertRequestRecord(
+        RequestRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:85FFD42680A33B720124A4D29E6CB4F8C2798C92", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:85FFD42680A33B720124A4D29E6CB4F8C2798C92", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
@@ -854,10 +1013,17 @@ public class WarcParserTest
         Assert.Equal(record.ContentType, actualContentType);
     }
 
-    private static void AssertResourceRecord(ResourceRecord record, string version)
+    private static void AssertResourceRecord(
+        ResourceRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:231AD621E019B0108B5886A3ABFDDB6D8F9477D2", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:231AD621E019B0108B5886A3ABFDDB6D8F9477D2", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:25809bd7-a7e7-4a97-81b5-d7d9747f3eaf")));
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal(IPAddress.Parse("127.0.0.1"), record.IpAddress);
@@ -873,10 +1039,17 @@ public class WarcParserTest
         Assert.Equal("text/dns", actualContentType);
     }
 
-    private static void AssertResponseRecord(ResponseRecord record, string version)
+    private static void AssertResponseRecord(
+        ResponseRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:335680BF19511379DB8BAB0C3F3D92318751C0C4", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:335680BF19511379DB8BAB0C3F3D92318751C0C4", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:672baea5-b4cd-49e3-9ce7-6cdf93513d54")));
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
@@ -891,10 +1064,17 @@ public class WarcParserTest
         Assert.Equal(record.ContentType, actualContentType);
     }
 
-    private static void AssertRevisitRecordForIdentical(RevisitRecord record, string version)
+    private static void AssertRevisitRecordForIdentical(
+        RevisitRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:DA39A3EE5E6B4B0D3255BFEF95601890AFD80709", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:DA39A3EE5E6B4B0D3255BFEF95601890AFD80709", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
         Assert.Equal(DateTime.Parse("2001-02-01T01:23:45Z"), record.Date);
         Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
@@ -912,10 +1092,17 @@ public class WarcParserTest
         Assert.Equal("application/octet-stream", actualContentType);
     }
 
-    private static void AssertRevisitRecordForUnmodified(RevisitRecord record, string version)
+    private static void AssertRevisitRecordForUnmodified(
+        RevisitRecord record,
+        string version,
+        bool isWithoutBlockDigest = false)
     {
         Assert.Equal(version, record.Version);
-        Assert.Equal("sha1:241E0040D1186D236DFC2DDCC80BD712DE038268", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:241E0040D1186D236DFC2DDCC80BD712DE038268", record.BlockDigest);
+        }
+
         Assert.True(record.ConcurrentTos.Contains(new Uri("urn:uuid:17bd27ae-fb71-4b60-a7a2-d7d42cfed221")));
         Assert.Equal(DateTime.Parse("2002-03-01T03:45:06Z"), record.Date);
         Assert.Equal(IPAddress.Parse("1.23.45.67"), record.IpAddress);
@@ -933,10 +1120,14 @@ public class WarcParserTest
         Assert.Equal("application/octet-stream", actualContentType);
     }
 
-    private static void AssertWarcinfoRecord(WarcinfoRecord record)
+    private static void AssertWarcinfoRecord(WarcinfoRecord record, bool isWithoutBlockDigest = false)
     {
         Assert.Equal("1.1", record.Version);
-        Assert.Equal("sha1:11C37A02E327EDE38A916B7153DE2CC6DC7876EB", record.BlockDigest);
+        if (!isWithoutBlockDigest)
+        {
+            Assert.Equal("sha1:11C37A02E327EDE38A916B7153DE2CC6DC7876EB", record.BlockDigest);
+        }
+
         Assert.Equal(DateTime.Parse("2000-01-01T12:34:56Z"), record.Date);
         Assert.Equal("warcinfo.warc", record.Filename);
         Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.Id);
@@ -957,6 +1148,38 @@ public class WarcParserTest
         }
 
         return tempPath;
+    }
+
+    private static DigestFactory? CreateDigestFactory(string? blockDigest)
+    {
+        DigestFactory? digestFactory;
+        if (blockDigest == null)
+        {
+            digestFactory = null;
+        }
+        else
+        {
+            var index = blockDigest.IndexOf(':');
+            var hashName = blockDigest[..index].TrimStart();
+            digestFactory = new DigestFactory(hashName);
+        }
+
+        return digestFactory;
+    }
+
+    private static string CreatePath(
+        string filename,
+        string version,
+        bool isWithoutBlockDigest)
+    {
+        var path = $"{DirectoryForValidRecords}{version}{Path.DirectorySeparatorChar}";
+        if (isWithoutBlockDigest)
+        {
+            path = $"{path}without-block-digest{Path.DirectorySeparatorChar}";
+        }
+
+        path = $"{path}{filename}";
+        return path;
     }
 
     [ExcludeFromCodeCoverage]

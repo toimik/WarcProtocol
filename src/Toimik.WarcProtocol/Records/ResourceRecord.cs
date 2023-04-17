@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2023 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ public class ResourceRecord : Record
         var isParsed = false;
         SetContentBlock(recordBlock, isParsed);
 
-        PayloadDigest = payloadDigest ?? Utils.CreateWarcDigest(DigestFactory, RecordBlock!);
+        PayloadDigest = payloadDigest;
         if (recordBlock.Length > 0)
         {
             ContentType = contentType;
@@ -138,7 +138,7 @@ public class ResourceRecord : Record
         string version,
         Uri recordId,
         DateTime date,
-        DigestFactory digestFactory,
+        DigestFactory? digestFactory,
         PayloadTypeIdentifier payloadTypeIdentifier)
         : base(
               version,

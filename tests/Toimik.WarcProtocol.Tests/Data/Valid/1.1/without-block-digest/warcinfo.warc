@@ -1,0 +1,20 @@
+WARC/1.1
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-Filename: warcinfo.warc
+WARC-Record-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Type: warcinfo
+Content-Length: 241
+Content-Type: application/warc-fields
+WARC-Truncated: foobar
+
+operator: admin
+software: app/1.2.3
+robots: classic
+hostname: host2.example.com
+ip: 123.1.2.3
+http-header-user-agent: 
+ Mozilla: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0)
+ Gecko/20100101
+http-header-from: username@example.com
+
+
