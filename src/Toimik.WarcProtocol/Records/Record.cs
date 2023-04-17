@@ -47,6 +47,8 @@ public abstract class Record
         Date = date;
         OrderedFields = orderedFields;
         TruncatedReason = truncatedReason;
+
+        // TODO: As the block digest is optional, a default should not be set
         DigestFactory = digestFactory ?? new DigestFactory("sha1");
     }
 
@@ -56,6 +58,10 @@ public abstract class Record
 
     public DateTime Date { get; private set; }
 
+    /// <summary>
+    /// The <see cref="DigestFactory"/>, if any, to be applied to the block.
+    /// </summary>
+    /// TODO: This should be nullable
     public DigestFactory DigestFactory { get; }
 
     public Uri Id { get; private set; }

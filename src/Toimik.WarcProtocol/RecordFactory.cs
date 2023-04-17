@@ -22,6 +22,7 @@ public class RecordFactory
 {
     public RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
     {
+        // TODO: As the block digest is optional, a default should not be set
         DigestFactory = digestFactory ?? new DigestFactory("sha1");
         PayloadTypeIdentifier = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
     }
