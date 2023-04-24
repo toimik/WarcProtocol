@@ -22,7 +22,6 @@ public class WarcWriter : IDisposable
     /// <param name="filepath">The full path of the WARC file to create. If the filename has a .gz extension, we will use per-record GZIP compression.</param>
     /// <param name="forceCompressed">Use per-record GZIP compression, regardless of the WARC's file extenion.</param>
     /// <exception cref="ArgumentNullException">If the path to the WARC file is null or empty.</exception>
-    /// <exception cref="ArgumentException">If the WARC file already exists, or if the directory structure to the WARC doesn't exist.</exception>
     public WarcWriter(string filepath, bool forceCompressed = false)
     {
         if (string.IsNullOrEmpty(filepath))
@@ -32,12 +31,6 @@ public class WarcWriter : IDisposable
 
         var info = new FileInfo(filepath);
 
-        // ensure the file doesn't already exist
-        if (File.Exists(info.FullName))
-        {
-            throw new ArgumentException("Supplied WARC file already exists.", nameof(filepath));
-        }
-
         // ensure the path exists
         if (!Directory.Exists(info.DirectoryName))
         {
@@ -45,7 +38,7 @@ public class WarcWriter : IDisposable
         }
 
         Filepath = filepath;
-        fout = new FileStream(Filepath, FileMode.CreateNew);
+        fout = new FileStream(Filepath, FileMode.Create);
 
         // check if we are using per-record compression based on *.gz file extension
         if (info.Extension == ".gz")
