@@ -144,16 +144,12 @@ class Program
         // Wrap the writer in a "using" block to ensure data
         // is properly flushed to the file.
         // Or call "Close()" directly
-        using(var writer = new WarcWriter("compressed.warc.gz"))
-        {
-            // WARC files should start with a WarcInfo record
-            WarcInfo infoRecord = SomeCodeToGenerateWarcInfo();
-            writer.WriteRecord(infoRecord);
-            
-            // Now write any Tomimik.WarcProtocol.Record you want
-            Record someRecord = CodeToGenerateAnyRecord();
-			writer.WriteRecord(someRecord);
-        }
+		using(var warcWriter = new WarcWriter("example.warc.gz"))
+		{
+			warchWriter.WriteRecord(warcInfoRecord);
+			warchWriter.WriteRecord(requestRecord);
+			warchWriter.WriteRecord(responseRecord);
+		}
         
         // You can also create uncompressed WARCs. This is controlled via the file extension.
         using(var writer = new WarcWriter("uncompressed.warc"))
