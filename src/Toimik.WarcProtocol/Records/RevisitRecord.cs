@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2023 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ public class RevisitRecord : Record
         string version,
         Uri recordId,
         DateTime date,
-        DigestFactory digestFactory)
+        DigestFactory? digestFactory)
         : base(
               version,
               recordId,

@@ -63,8 +63,6 @@ public class ResourceRecordTest
             infoId: Utils.CreateId(),
             targetUri: new Uri("dns://example.com"));
 
-        var digestFactory = new DigestFactory("sha1");
-        var expectedPayloadDigest = Utils.CreateWarcDigest(digestFactory, Encoding.UTF8.GetBytes("foo"));
-        Assert.Equal(expectedPayloadDigest, resourceRecord.PayloadDigest);
+        Assert.Null(resourceRecord.PayloadDigest);
     }
 }

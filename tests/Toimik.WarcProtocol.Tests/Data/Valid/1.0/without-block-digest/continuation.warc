@@ -1,0 +1,18 @@
+WARC/1.0
+WARC-Date: 2000-01-01T12:34:56Z
+WARC-Payload-Digest: sha1:CB927B7C7DE7DA663A68973E0C034FFBE6A98BF4
+WARC-Record-ID: <urn:uuid:6a59c5c8-d806-4cdb-83aa-b21495d11063>
+WARC-Segment-Number: 2
+WARC-Segment-Origin-ID: <urn:uuid:a6ddea17-518c-44d7-8d34-77f8ef0d0890>
+WARC-Segment-Total-Length: 217
+WARC-Target-URI: <dns://example.com>
+WARC-Type: continuation
+WARC-Warcinfo-ID: <urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05>
+WARC-Identified-Payload-Type: text/dns
+Content-Length: 83
+WARC-Truncated: foobar
+
+# This is a continuation from a resource
+example.com.     185 IN  A   209.1.22.250
+
+

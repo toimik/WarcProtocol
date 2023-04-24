@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2022 nurhafiz@hotmail.sg
+ * Copyright 2021-2023 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ public class RecordFactory
 {
     public RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
     {
-        DigestFactory = digestFactory ?? new DigestFactory("sha1");
+        DigestFactory = digestFactory;
         PayloadTypeIdentifier = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
     }
 
-    public DigestFactory DigestFactory { get; }
+    public DigestFactory? DigestFactory { get; }
 
     public PayloadTypeIdentifier PayloadTypeIdentifier { get; }
 
