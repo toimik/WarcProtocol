@@ -894,6 +894,139 @@ public class WarcParserTest
         Assert.Equal(expectedHeader, actualHeader);
     }
 
+    [ExcludeFromCodeCoverage]
+    internal static string CreateTempFile(string fileExtension)
+    {
+        string path;
+        string? tempFilename = null;
+        try
+        {
+            do
+            {
+                tempFilename = Path.GetTempFileName();
+                path = RenameFileExtension(tempFilename, fileExtension);
+                try
+                {
+                    File.Move(tempFilename, path);
+                    break;
+                }
+                catch (IOException)
+                {
+                    // Do nothing
+                }
+            }
+            while (true);
+        }
+        finally
+        {
+            DeleteFile(tempFilename);
+        }
+
+        return path;
+    }
+
+    [ExcludeFromCodeCoverage]
+    internal static void DeleteFile(string? path)
+    {
+        if (path != null)
+        {
+            // Repeatedly try to delete the file until successful
+            do
+            {
+                try
+                {
+                    File.Delete(path);
+                    break;
+                }
+                catch (IOException ex)
+                {
+                    if (!ex.Message.StartsWith("The process cannot access the file"))
+                    {
+                        throw;
+                    }
+                }
+            }
+            while (true);
+        }
+    }
+
+    internal static async Task TestFile(
+            string path,
+            int recordCount,
+            CompressionStreamFactory? compressionStreamFactory = null)
+    {
+        var recordCounter = 0;
+        var parser = new WarcParser(compressionStreamFactory: compressionStreamFactory);
+        await foreach (WarcProtocol.Record record in parser.Parse(path).ConfigureAwait(false))
+        {
+            switch (record.Type)
+            {
+                case ContinuationRecord.TypeName:
+                    AssertContinuationRecord((ContinuationRecord)record, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case ConversionRecord.TypeName:
+                    var conversionRecord = (ConversionRecord)record;
+
+                    // NOTE: See remarks #1
+                    Assert.Null(conversionRecord.IdentifiedPayloadType);
+
+                    AssertConversionRecord(conversionRecord, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case MetadataRecord.TypeName:
+                    AssertMetadataRecord((MetadataRecord)record, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case RequestRecord.TypeName:
+                    var requestRecord = (RequestRecord)record;
+                    Assert.Null(requestRecord.IdentifiedPayloadType);
+                    AssertRequestRecord(requestRecord, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case ResourceRecord.TypeName:
+                    AssertResourceRecord((ResourceRecord)record, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case ResponseRecord.TypeName:
+                    var responseRecord = (ResponseRecord)record;
+
+                    // NOTE: See remarks #1
+                    Assert.Null(responseRecord.IdentifiedPayloadType);
+
+                    AssertResponseRecord(responseRecord, version: "1.1");
+                    recordCounter++;
+                    break;
+
+                case RevisitRecord.TypeName:
+                    var revisitRecord = (RevisitRecord)record;
+                    if (revisitRecord.ContentLength == 0)
+                    {
+                        AssertRevisitRecordForIdentical(revisitRecord, version: "1.1");
+                    }
+                    else
+                    {
+                        AssertRevisitRecordForUnmodified(revisitRecord, version: "1.1");
+                    }
+
+                    recordCounter++;
+                    break;
+
+                case WarcinfoRecord.TypeName:
+                    AssertWarcinfoRecord((WarcinfoRecord)record);
+                    recordCounter++;
+                    break;
+            }
+        }
+
+        Assert.Equal(recordCount, recordCounter);
+    }
+
     private static void AssertContinuationRecord(
         ContinuationRecord record,
         string version,
@@ -1182,62 +1315,6 @@ public class WarcParserTest
         return path;
     }
 
-    [ExcludeFromCodeCoverage]
-    private static string CreateTempFile(string fileExtension)
-    {
-        string path;
-        string? tempFilename = null;
-        try
-        {
-            do
-            {
-                tempFilename = Path.GetTempFileName();
-                path = RenameFileExtension(tempFilename, fileExtension);
-                try
-                {
-                    File.Move(tempFilename, path);
-                    break;
-                }
-                catch (IOException)
-                {
-                    // Do nothing
-                }
-            }
-            while (true);
-        }
-        finally
-        {
-            DeleteFile(tempFilename);
-        }
-
-        return path;
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static void DeleteFile(string? path)
-    {
-        if (path != null)
-        {
-            // Repeatedly try to delete the file until successful
-            do
-            {
-                try
-                {
-                    File.Delete(path);
-                    break;
-                }
-                catch (IOException ex)
-                {
-                    if (!ex.Message.StartsWith("The process cannot access the file"))
-                    {
-                        throw;
-                    }
-                }
-            }
-            while (true);
-        }
-    }
-
     private static void MergeIndividuallyCompressedRecords(string path)
     {
         using var outputStream = File.OpenWrite(path);
@@ -1270,83 +1347,6 @@ public class WarcParserTest
         var directory = path[..slashIndex];
         var newPath = $"{directory}{filename}{extension}";
         return newPath;
-    }
-
-    private static async Task TestFile(
-        string path,
-        int recordCount,
-        CompressionStreamFactory? compressionStreamFactory = null)
-    {
-        var recordCounter = 0;
-        var parser = new WarcParser(compressionStreamFactory: compressionStreamFactory);
-        await foreach (WarcProtocol.Record record in parser.Parse(path).ConfigureAwait(false))
-        {
-            switch (record.Type)
-            {
-                case ContinuationRecord.TypeName:
-                    AssertContinuationRecord((ContinuationRecord)record, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case ConversionRecord.TypeName:
-                    var conversionRecord = (ConversionRecord)record;
-
-                    // NOTE: See remarks #1
-                    Assert.Null(conversionRecord.IdentifiedPayloadType);
-
-                    AssertConversionRecord(conversionRecord, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case MetadataRecord.TypeName:
-                    AssertMetadataRecord((MetadataRecord)record, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case RequestRecord.TypeName:
-                    var requestRecord = (RequestRecord)record;
-                    Assert.Null(requestRecord.IdentifiedPayloadType);
-                    AssertRequestRecord(requestRecord, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case ResourceRecord.TypeName:
-                    AssertResourceRecord((ResourceRecord)record, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case ResponseRecord.TypeName:
-                    var responseRecord = (ResponseRecord)record;
-
-                    // NOTE: See remarks #1
-                    Assert.Null(responseRecord.IdentifiedPayloadType);
-
-                    AssertResponseRecord(responseRecord, version: "1.1");
-                    recordCounter++;
-                    break;
-
-                case RevisitRecord.TypeName:
-                    var revisitRecord = (RevisitRecord)record;
-                    if (revisitRecord.ContentLength == 0)
-                    {
-                        AssertRevisitRecordForIdentical(revisitRecord, version: "1.1");
-                    }
-                    else
-                    {
-                        AssertRevisitRecordForUnmodified(revisitRecord, version: "1.1");
-                    }
-
-                    recordCounter++;
-                    break;
-
-                case WarcinfoRecord.TypeName:
-                    AssertWarcinfoRecord((WarcinfoRecord)record);
-                    recordCounter++;
-                    break;
-            }
-        }
-
-        Assert.Equal(recordCount, recordCounter);
     }
 
     private class CustomParseLog : IParseLog
