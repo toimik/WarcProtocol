@@ -68,7 +68,13 @@ public class WarcWriter : IDisposable
     public bool IsCompressed { get; private set; }
 
     /// <summary>
-    /// Closes the WARC output
+    /// Gets the current size of the WARC. Useful if you want to split traffic into multiple WARCs as they get larger
+    /// </summary>
+    public long Length
+        => fout.Length;
+
+    /// <summary>
+    /// Closes the WARC output.
     /// </summary>
     public void Close()
         => fout.Close();
