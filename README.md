@@ -3,13 +3,14 @@
 
 # Toimik.WarcProtocol
 
-.NET 6 C# [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1) parser.
+.NET 6 C# [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1) parser and writer.
 
 ## Features
 
-- Parses uncompressed / compressed - as a whole or per record - Web ARChive (WARC) version 1.0 / 1.1 files
+- Parses uncompressed / compressed - as a whole or per record - Web ARChive (WARC) version 1.0 / 1.1 files (via `WarcParser` class)
 - Option to terminate or resume processing upon encountering malformed content
 - Creates WARC records with auto-generated `WARC-Block-Digest` / `WARC-Payload-Digest` using configurable hash algorithm
+- Writes uncompressed or per-record compressed WARC version 1.0 / 1.1 files (via `WarcWriter` class)
 
 ## Quick Start
 
@@ -27,11 +28,14 @@ PM> Install-Package Toimik.WarcProtocol
 > dotnet add package Toimik.WarcProtocol
 ```
 
-### Usage
+### WarcParser Usage
+
+The `WarcParser` class can be used to parse WARC 1.0 and 1.1 files.
 
 ```c# 
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Toimik.WarcProtocol;
 
 class Program
 {
@@ -120,6 +124,47 @@ class Program
         public void ErrorEncountered(string error)
         {
             Debug.WriteLine(error);
+        }
+    }
+}
+```
+
+### WarcWriter Usage
+
+The `WarcWriter` class can be used to write WARC records to a file.
+
+```c# 
+using Toimik.WarcProtocol;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Creates a new WARC file with per-record compression
+        // Wrap the writer in a "using" block to ensure data
+        // is properly flushed to the file.
+        // Or call "Close()" directly
+        using(var writer = new WarcWriter("compressed.warc.gz"))
+        {
+            // WARC files should start with a WarcInfo record
+            WarcInfo infoRecord = SomeCodeToGenerateWarcInfo();
+            writer.WriteRecord(infoRecord);
+            
+            // Now write any Tomimik.WarcProtocol.Record you want
+            Record someRecord = CodeToGenerateAnyRecord();
+			writer.WriteRecord(someRecord);
+        }
+        
+        // You can also create uncompressed WARCs. This is controlled via the file extension.
+        using(var writer = new WarcWriter("uncompressed.warc"))
+        {
+	        ...
+        }
+        
+        // You can also force per-record compression, regardless of file extension
+        using(var writer = new WarcWriter("actually-compressed.warc.whatever", true))
+        {
+          ...
         }
     }
 }
