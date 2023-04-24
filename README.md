@@ -154,13 +154,13 @@ class Program
         // You can also create uncompressed WARCs. This is controlled via the file extension.
         using(var writer = new WarcWriter("uncompressed.warc"))
         {
-	        ...
+			// ...
         }
         
         // You can also force per-record compression, regardless of file extension
         using(var writer = new WarcWriter("actually-compressed.warc.whatever", true))
         {
-          ...
+			// ...
         }
     }
 }
