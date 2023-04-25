@@ -49,7 +49,7 @@ public class WarcWriterTest
         try
         {
             var sourceWarc = $"{DirectoryForValid1Point1Records}{sourceFilename}";
-            var outputWarc = WarcParserTest.CreateTempFile(outputExtension);
+            var outputWarc = TestUtils.CreateTempFile(outputExtension);
 
             List<string> sourceRecordTypes = new List<string>();
 
@@ -80,11 +80,11 @@ public class WarcWriterTest
             }
 
             // ensure the output warc is validates against source of truth in WarcParserTest
-            await WarcParserTest.TestFile(outputWarc, sourceRecordTypes.Count);
+            await TestUtils.TestFile(outputWarc, sourceRecordTypes.Count);
         }
         finally
         {
-            WarcParserTest.DeleteFile(tempOutputWarc);
+            TestUtils.DeleteFile(tempOutputWarc);
         }
     }
 }
