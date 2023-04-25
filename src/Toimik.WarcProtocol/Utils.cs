@@ -118,7 +118,7 @@ public class Utils
     {
         var text = uri == null
             ? null
-            : $"<{uri}>";
+            : $"<{uri.AbsoluteUri}>";
         return text;
     }
 
@@ -126,6 +126,15 @@ public class Utils
     {
         var uri = new Uri($"urn:uuid:{Guid.NewGuid()}");
         return uri;
+    }
+
+    internal static string CreateTargetUriHeader(string version, Uri targetUri)
+    {
+        var uri = version.Equals("1.0")
+            ? AddBracketsToUri(targetUri)
+            : targetUri.AbsoluteUri;
+        var text = Record.ToString("WARC-Target-URI", uri);
+        return text;
     }
 
     internal static string CreateWarcDigest(DigestFactory digestFactory, byte[] block)

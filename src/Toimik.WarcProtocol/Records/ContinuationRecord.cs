@@ -232,10 +232,7 @@ public class ContinuationRecord : Record
             case FieldForTargetUri:
                 if (TargetUri != null)
                 {
-                    var targetUri = Version.Equals("1.0")
-                        ? Utils.AddBracketsToUri(TargetUri)
-                        : TargetUri.ToString();
-                    text = ToString("WARC-Target-URI", targetUri);
+                    text = Utils.CreateTargetUriHeader(Version, TargetUri);
                 }
 
                 break;
