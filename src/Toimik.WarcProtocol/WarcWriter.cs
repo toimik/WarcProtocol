@@ -95,12 +95,6 @@ public class WarcWriter : IDisposable
     // FIXME: Add a test case
     public long Length => fout.Length;
 
-    /// <summary>
-    /// Closes this instance.
-    /// </summary>
-    // FIXME: Add a test case
-    public void Close() => fout.Close();
-
     public void Dispose()
     {
         Dispose(isDisposing: true);
@@ -112,7 +106,7 @@ public class WarcWriter : IDisposable
     /// </summary>
     /// <param name="record">A <see cref="Record"/>.</param>
     /// <remarks>Per-record compression is used, if applicable.</remarks>
-    public void WriteRecord(Record record)
+    public void Write(Record record)
     {
         if (IsCompressed)
         {

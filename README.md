@@ -146,9 +146,9 @@ class Program
         // Or call "Close()" directly
         using (WarcWriter warcWriter = new WarcWriter("example.warc.gz"))
         {
-            warcWriter.WriteRecord(warcInfoRecord);
-            warcWriter.WriteRecord(requestRecord);
-            warcWriter.WriteRecord(responseRecord);
+            warcWriter.Write(warcInfoRecord);
+            warcWriter.Write(requestRecord);
+            warcWriter.Write(responseRecord);
         }
         
         // You can also create uncompressed WARCs. This is controlled via the file extension.

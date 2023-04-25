@@ -60,7 +60,7 @@ public class WarcWriterTest
                 await foreach (var record in records)
                 {
                     // write each record from source into output WARC.
-                    warcWriter.WriteRecord(record);
+                    warcWriter.Write(record);
 
                     // also store the record type into a list so we can validate count and type order
                     sourceRecordTypes.Add(record.Type);
