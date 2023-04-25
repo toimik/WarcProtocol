@@ -9,8 +9,8 @@ public class UtilsTest
     public void AddBracketsToUriWithUriThatIsNull()
     {
         Uri? uri = null;
-        var expectedUri = Utils.AddBracketsToUri(uri);
+        var actualUri = Utils.AddBracketsToUri(uri);
 
-        Assert.Null(expectedUri);
+        Assert.Null(actualUri);
     }
 }
