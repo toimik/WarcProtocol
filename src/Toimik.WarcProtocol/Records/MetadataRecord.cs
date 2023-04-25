@@ -151,7 +151,7 @@ public class MetadataRecord : Record
 
     public override string Type => TypeName;
 
-    public override byte[]? GetBlockBytes() => WarcWriter.ConvertToBytes(ContentBlock);
+    public override byte[]? GetBlockBytes() => Utils.ConvertToBytes(ContentBlock);
 
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {

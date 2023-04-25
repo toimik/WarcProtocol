@@ -124,21 +124,6 @@ public class WarcWriter : IDisposable
         }
     }
 
-    /// <summary>
-    /// Helper function to convert UTF-8 strings to byte arrays for record blocks.
-    /// </summary>
-    /// <param name="content">Content to convert.</param>
-    /// <returns>byte array of the string content.</returns>
-    internal static byte[]? ConvertToBytes(string? content)
-    {
-        if (string.IsNullOrEmpty(content))
-        {
-            return null;
-        }
-
-        return Encoding.UTF8.GetBytes(content);
-    }
-
     [ExcludeFromCodeCoverage]
     protected virtual void Dispose(bool isDisposing)
     {
