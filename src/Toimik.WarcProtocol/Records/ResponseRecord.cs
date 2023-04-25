@@ -178,6 +178,8 @@ public class ResponseRecord : Record
 
     public override string Type => TypeName;
 
+    public override byte[]? GetBlockBytes() => ContentBlock;
+
     public bool IsSegmented() => SegmentNumber != 0;
 
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)

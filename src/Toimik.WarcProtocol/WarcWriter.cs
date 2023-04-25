@@ -1,52 +1,73 @@
-﻿namespace Toimik.WarcProtocol;
+﻿/*
+ * Copyright 2023 https://github.com/acidus99
+ * Copyright 2023 nurhafiz@hotmail.sg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace Toimik.WarcProtocol;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 
 /// <summary>
-/// Writes Records to a WARC file. Supports per-record compression.
+/// Represents a writer for WARC files that are formatted according to version 1.1 and 1.0.
 /// </summary>
 public class WarcWriter : IDisposable
 {
-    /// <summary>
-    /// The underling file we will write to.
-    /// </summary>
-    private FileStream fout;
+    // The file to be written to
+    private readonly FileStream fout;
+
+    private bool isDisposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WarcWriter"/> class.
-    /// Validates output WARC can be written and sets up needed variables.
     /// </summary>
-    /// <param name="filepath">The full path of the WARC file to create. If the filename has a .gz extension, we will use per-record GZIP compression.</param>
-    /// <param name="forceCompressed">Use per-record GZIP compression, regardless of the WARC's file extenion.</param>
+    /// <param name="filePath">The full path of the WARC file to create. If the filename has a .gz extension, we will use per-record GZIP compression.</param>
+    /// <param name="isForcedCompression">Use per-record GZIP compression, regardless of the WARC's file extenion.</param>
     /// <exception cref="ArgumentNullException">If the path to the WARC file is null or empty.</exception>
-    public WarcWriter(string filepath, bool forceCompressed = false)
+    /// <remarks>Validates output WARC can be written and sets up needed variables.</remarks>
+    public WarcWriter(string filePath, bool isForcedCompression = false)
     {
-        if (string.IsNullOrEmpty(filepath))
+        if (string.IsNullOrEmpty(filePath))
         {
-            throw new ArgumentNullException("You must provide destination path and filename for the WARC", nameof(filepath));
+            // FIXME: Add a test case
+            throw new ArgumentNullException(nameof(filePath), "Destination path and filename for the WARC must be specified");
         }
 
-        var info = new FileInfo(filepath);
+        var info = new FileInfo(filePath);
 
-        // ensure the path exists
+        // Ensures that the path exists
         if (!Directory.Exists(info.DirectoryName))
         {
-            throw new ArgumentException("Path to output WARC doesn't exist.", nameof(filepath));
+            // FIXME: Add a test case
+            throw new ArgumentException("Path to output WARC doesn't exist.", nameof(filePath));
         }
 
-        Filepath = filepath;
+        Filepath = filePath;
         fout = new FileStream(Filepath, FileMode.Create);
 
-        // check if we are using per-record compression based on *.gz file extension
+        // Checks whether per-record compression based on *.gz file extension is used
         if (info.Extension == ".gz")
         {
             IsCompressed = true;
         }
-        else if (forceCompressed)
+        else if (isForcedCompression)
         {
+            // FIXME: Add a test case
             IsCompressed = true;
         }
         else
@@ -56,41 +77,41 @@ public class WarcWriter : IDisposable
     }
 
     /// <summary>
-    /// The full path of the WARC file to which we are writing.
+    /// Gets, for this instance, the full path of the WARC file to be written to.
     /// </summary>
     public string Filepath { get; private set; }
 
     /// <summary>
-    /// Are we using per-record GZIP compression?
-    /// This is controlled by the file extension of the WARC or via the
-    /// forceCompression option in the constructor.
+    /// Gets, for this instance, an indication of whether per-record GZIP compression is used.
     /// </summary>
+    /// <remarks>This is controlled by the file extension of the WARC or via the
+    /// <c>isForcedComparession</c> parameter that is passed to the constructor.</remarks>
     public bool IsCompressed { get; private set; }
 
     /// <summary>
-    /// Gets the current size of the WARC. Useful if you want to split traffic into multiple WARCs as they get larger
+    /// Gets, for this instance, the current size of the WARC.
     /// </summary>
-    public long Length
-        => fout.Length;
+    /// <remarks>This is useful to know when splitting a large record into multiple smaller WARCs.</remarks>
+    // FIXME: Add a test case
+    public long Length => fout.Length;
 
     /// <summary>
-    /// Closes the WARC output.
+    /// Closes this instance.
     /// </summary>
-    public void Close()
-        => fout.Close();
+    // FIXME: Add a test case
+    public void Close() => fout.Close();
 
-    /// <summary>
-    /// Ensures we properly dispose of the WARC file stream.
-    /// </summary>
     public void Dispose()
     {
-        ((IDisposable)fout).Dispose();
+        Dispose(isDisposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// Writes a record to the WARC output, applying per-record compression if appropriate.
+    /// Writes the specified <paramref name="record"/> to the WARC output.
     /// </summary>
-    /// <param name="record">The record to write to the WARC.</param>
+    /// <param name="record">A <see cref="Record"/>.</param>
+    /// <remarks>Per-record compression is used, if applicable.</remarks>
     public void WriteRecord(Record record)
     {
         if (IsCompressed)
@@ -104,102 +125,11 @@ public class WarcWriter : IDisposable
     }
 
     /// <summary>
-    /// Compresses a record to a gzipped byte array.
+    /// Helper function to convert UTF-8 strings to byte arrays for record blocks.
     /// </summary>
-    /// <param name="record">record to compress.</param>
-    /// <returns>gzipped byte array</returns>
-    private byte[] CompressRecord(Record record)
-    {
-        using (var newStream = new MemoryStream())
-        {
-            using (GZipStream compressed = new GZipStream(newStream, CompressionMode.Compress ))
-            {
-                WriteRecordToStream(record, compressed);
-            }
-
-            return newStream.ToArray();
-        }
-    }
-
-    /// <summary>
-    /// Outputs a record to a stream. Handles the headers and optional block.
-    /// </summary>
-    /// <param name="record">the record to write.</param>
-    /// <param name="stream">the output stream.</param>
-    private void WriteRecordToStream(Record record, Stream stream)
-    {
-        // write the header
-        var header = record.GetHeader();
-        stream.Write(Encoding.UTF8.GetBytes(header));
-        stream.WriteByte(WarcParser.CarriageReturn);
-        stream.WriteByte(WarcParser.LineFeed);
-
-        // write block if available
-        byte[]? blockBytes = GetBlockBytes(record);
-        if (blockBytes != null)
-        {
-            stream.Write(blockBytes);
-        }
-
-        // Always two CRLFs between records
-        stream.WriteByte(WarcParser.CarriageReturn);
-        stream.WriteByte(WarcParser.LineFeed);
-        stream.WriteByte(WarcParser.CarriageReturn);
-        stream.WriteByte(WarcParser.LineFeed);
-    }
-
-    /// <summary>
-    /// For a given record, get the bytes which make up the record block.
-    /// </summary>
-    /// <param name="record">the WARC record</param>
-    /// <returns>bytes of the block. null if no block bytes exist for the record.</returns>
-    private byte[]? GetBlockBytes(Record record)
-    {
-        /*
-         * Due to the Record class heirarchy, there isn't an easy, consistent way to
-         * access the raw bytes that make up the record block. Ideally the
-         * records should be refactored / implement interfaces for this, but
-         * for now I'll just look at each type to figure out what needs to be
-         * output as the block bytes
-         */
-
-        switch (record.Type)
-        {
-            case ContinuationRecord.TypeName:
-                return ((ContinuationRecord)record).RecordBlock;
-
-            case ConversionRecord.TypeName:
-                return ((ConversionRecord)record).RecordBlock;
-
-            case MetadataRecord.TypeName:
-                return ConvertToBytes(((MetadataRecord)record).ContentBlock);
-
-            case RequestRecord.TypeName:
-                return ((RequestRecord)record).ContentBlock;
-
-            case ResourceRecord.TypeName:
-                return ((ResourceRecord)record).RecordBlock;
-
-            case ResponseRecord.TypeName:
-                return ((ResponseRecord)record).ContentBlock;
-
-            case RevisitRecord.TypeName:
-                return ConvertToBytes(((RevisitRecord)record).RecordBlock);
-
-            case WarcinfoRecord.TypeName:
-                return ConvertToBytes(((WarcinfoRecord)record).ContentBlock);
-
-            default:
-                throw new ArgumentException($"Unknown record type '{record.Type}'. Cannot determine block bytes.", nameof(record));
-        }
-    }
-
-    /// <summary>
-    /// helper function to convert UTF8 strings to byte arrays for record blocks.
-    /// </summary>
-    /// <param name="content">string content to convert.</param>
-    /// <returns>byte array of the string content</returns>
-    private byte[]? ConvertToBytes(string? content)
+    /// <param name="content">Content to convert.</param>
+    /// <returns>byte array of the string content.</returns>
+    internal static byte[]? ConvertToBytes(string? content)
     {
         if (string.IsNullOrEmpty(content))
         {
@@ -207,5 +137,66 @@ public class WarcWriter : IDisposable
         }
 
         return Encoding.UTF8.GetBytes(content);
+    }
+
+    [ExcludeFromCodeCoverage]
+    protected virtual void Dispose(bool isDisposing)
+    {
+        if (isDisposed)
+        {
+            return;
+        }
+
+        if (isDisposing)
+        {
+            // Ensures that the WARC file stream is disposed
+            ((IDisposable)fout).Dispose();
+        }
+
+        isDisposed = true;
+    }
+
+    /// <summary>
+    /// Compresses the specified <paramref name="record"/> to a gzipped byte array.
+    /// </summary>
+    /// <param name="record">A <see cref="Record"/>.</param>
+    /// <returns>gzipped byte array.</returns>
+    private static byte[] CompressRecord(Record record)
+    {
+        using var memoryStream = new MemoryStream();
+        using (GZipStream gzipStream = new GZipStream(memoryStream, CompressionMode.Compress))
+        {
+            WriteRecordToStream(record, gzipStream);
+        }
+
+        return memoryStream.ToArray();
+    }
+
+    /// <summary>
+    /// Outputs the specified <paramref name="record"/> to the specified <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="record">A <see cref="Record"/>.</param>
+    /// <param name="stream">A <see cref="Stream"/>.</param>
+    /// <remarks>Handles the headers and optional block.</remarks>
+    private static void WriteRecordToStream(Record record, Stream stream)
+    {
+        // Writes the header
+        var header = record.GetHeader();
+        stream.Write(Encoding.UTF8.GetBytes(header));
+        stream.WriteByte(WarcParser.CarriageReturn);
+        stream.WriteByte(WarcParser.LineFeed);
+
+        // Writes the block, if any
+        byte[]? blockBytes = record.GetBlockBytes();
+        if (blockBytes != null)
+        {
+            stream.Write(blockBytes);
+        }
+
+        // Delimits a record with exactly two CRLFs
+        stream.WriteByte(WarcParser.CarriageReturn);
+        stream.WriteByte(WarcParser.LineFeed);
+        stream.WriteByte(WarcParser.CarriageReturn);
+        stream.WriteByte(WarcParser.LineFeed);
     }
 }

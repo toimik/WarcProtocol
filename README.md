@@ -144,21 +144,21 @@ class Program
         // Wrap the writer in a "using" block to ensure data
         // is properly flushed to the file.
         // Or call "Close()" directly
-        using(var warcWriter = new WarcWriter("example.warc.gz"))
+        using (WarcWriter warcWriter = new WarcWriter("example.warc.gz"))
         {
-            warchWriter.WriteRecord(warcInfoRecord);
-            warchWriter.WriteRecord(requestRecord);
-            warchWriter.WriteRecord(responseRecord);
+            warcWriter.WriteRecord(warcInfoRecord);
+            warcWriter.WriteRecord(requestRecord);
+            warcWriter.WriteRecord(responseRecord);
         }
         
         // You can also create uncompressed WARCs. This is controlled via the file extension.
-        using(var writer = new WarcWriter("uncompressed.warc"))
+        using (WarcWriter writer = new WarcWriter("uncompressed.warc"))
         {
             // ...
         }
         
         // You can also force per-record compression, regardless of file extension
-        using(var writer = new WarcWriter("actually-compressed.warc.whatever", true))
+        using (WarcWriter writer = new WarcWriter("actually-compressed.warc.whatever", true))
         {
             // ...
         }

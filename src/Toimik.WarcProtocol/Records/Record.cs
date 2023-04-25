@@ -71,6 +71,8 @@ public abstract class Record
 
     public string Version { get; }
 
+    public abstract byte[]? GetBlockBytes();
+
     public string GetHeader(IEnumerable<string>? orderedFields = null)
     {
         orderedFields ??= OrderedFields;

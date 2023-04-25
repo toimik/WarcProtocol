@@ -115,6 +115,8 @@ public class WarcinfoRecord : Record
 
     public override string Type => TypeName;
 
+    public override byte[]? GetBlockBytes() => WarcWriter.ConvertToBytes(ContentBlock);
+
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {
         base.SetContentBlock(contentBlock, isParsed);

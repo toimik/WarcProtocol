@@ -144,6 +144,8 @@ public class ContinuationRecord : Record
 
     public override string Type => TypeName;
 
+    public override byte[]? GetBlockBytes() => RecordBlock;
+
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {
         base.SetContentBlock(contentBlock, isParsed);

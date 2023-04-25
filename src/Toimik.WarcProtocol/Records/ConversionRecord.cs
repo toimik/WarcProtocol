@@ -162,6 +162,8 @@ public class ConversionRecord : Record
 
     public override string Type => TypeName;
 
+    public override byte[]? GetBlockBytes() => RecordBlock;
+
     public bool IsSegmented() => SegmentNumber != 0;
 
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)

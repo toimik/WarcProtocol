@@ -1,8 +1,6 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,8 +20,8 @@ public class WarcWriterTest
     [InlineData("revisit_identical.warc")]
     [InlineData("revisit_unmodified.warc")]
     [InlineData("warcinfo.warc")]
-    public async Task OutputUncompressedWarcMatchesInputWarc(string filename)
-        => await OutputWarcMatchesInputWarc(filename, ".warc");
+    public async Task OutputCompressedWarcMatchesInputWarc(string filename)
+        => await OutputWarcMatchesInputWarc(filename, ".warc.gz");
 
     [Theory]
     [InlineData("continuation.warc")]
@@ -35,8 +33,8 @@ public class WarcWriterTest
     [InlineData("revisit_identical.warc")]
     [InlineData("revisit_unmodified.warc")]
     [InlineData("warcinfo.warc")]
-    public async Task OutputCompressedWarcMatchesInputWarc(string filename)
-        => await OutputWarcMatchesInputWarc(filename, ".warc.gz");
+    public async Task OutputUncompressedWarcMatchesInputWarc(string filename)
+        => await OutputWarcMatchesInputWarc(filename, ".warc");
 
     // This tests how WarcWriter writes records (either uncompressed, or with
     // per-record compression) by round-tripping data from a known good source WARC files.
@@ -45,7 +43,7 @@ public class WarcWriterTest
     // - write those records in order to a temp, output WARC file
     // - Read back in records from output WARC to validate total record count and order of record types
     // - uses WarcParserTest's TestFile method to validate output WARC against source of truth
-    private async Task OutputWarcMatchesInputWarc(string sourceFilename, string outputExtension)
+    private static async Task OutputWarcMatchesInputWarc(string sourceFilename, string outputExtension)
     {
         string? tempOutputWarc = null;
         try
@@ -75,7 +73,7 @@ public class WarcWriterTest
 
             // do we have the same count, and are the record types in the same order?
             Assert.Equal(sourceRecordTypes.Count, outputRecords.Count);
-            for(int i = 0; i < sourceRecordTypes.Count; i++)
+            for (int i = 0; i < sourceRecordTypes.Count; i++)
             {
                 // validate ordering of types
                 Assert.Equal(sourceRecordTypes[i], outputRecords[i].Type);
