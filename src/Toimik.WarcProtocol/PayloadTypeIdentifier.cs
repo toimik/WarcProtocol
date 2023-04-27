@@ -37,6 +37,36 @@ public class PayloadTypeIdentifier
 
     public int[] Delimiter { get; }
 
+    public static int IndexOfPayload(byte[] contentBlock, int[]? delimiter = null)
+    {
+        var index = -1;
+        delimiter ??= DefaultDelimiter;
+        var offset = delimiter.Length;
+        var length = contentBlock.Length - offset;
+        for (int i = 0; i < length; i++)
+        {
+            var isFound = true;
+            for (int j = 0; j < offset; j++)
+            {
+                var content = contentBlock[i + j];
+                var character = delimiter[j];
+                if (content != character)
+                {
+                    isFound = false;
+                    break;
+                }
+            }
+
+            if (isFound)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
     public virtual string? Identify(byte[] payload)
     {
         // NOTE: This method is not implemented
@@ -49,5 +79,5 @@ public class PayloadTypeIdentifier
     /// <param name="contentBlock">The bytes representing the content block of a <see cref="Record"/>.</param>
     /// <returns>The start index of the payload or <c>-1</c> if none is found.</returns>
     /// <remarks>The <paramref name="contentBlock"/> is searched to find the first occurrence of the <see cref="Delimiter"/>.</remarks>
-    public int IndexOfPayload(byte[] contentBlock) => Utils.IndexOfPayload(contentBlock, Delimiter);
+    public int IndexOfPayload(byte[] contentBlock) => IndexOfPayload(contentBlock, Delimiter);
 }

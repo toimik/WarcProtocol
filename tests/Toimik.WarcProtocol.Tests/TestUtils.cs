@@ -290,7 +290,7 @@ public class TestUtils
     }
 
     public static async Task TestFile(
-            string path,
+        string path,
         int recordCount,
         CompressionStreamFactory? compressionStreamFactory = null)
     {

@@ -167,36 +167,7 @@ public class Utils
     }
 
     // NOTE: This is no longer used but is left here for backwards compatibility
-    internal static int IndexOfPayload(byte[] contentBlock) => IndexOfPayload(contentBlock, PayloadTypeIdentifier.DefaultDelimiter);
-
-    internal static int IndexOfPayload(byte[] contentBlock, int[] delimiter)
-    {
-        var index = -1;
-        var offset = delimiter.Length;
-        var length = contentBlock.Length - offset;
-        for (int i = 0; i < length; i++)
-        {
-            var isFound = true;
-            for (int j = 0; j < offset; j++)
-            {
-                var content = contentBlock[i + j];
-                var character = delimiter[j];
-                if (content != character)
-                {
-                    isFound = false;
-                    break;
-                }
-            }
-
-            if (isFound)
-            {
-                index = i;
-                break;
-            }
-        }
-
-        return index;
-    }
+    internal static int IndexOfPayload(byte[] contentBlock) => PayloadTypeIdentifier.IndexOfPayload(contentBlock);
 
     internal static Uri RemoveBracketsFromUri(string value)
     {

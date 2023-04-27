@@ -947,7 +947,7 @@ public class WarcParserTest
     }
 
     private static string CreatePath(
-                    string filename,
+        string filename,
         string version,
         bool isWithoutBlockDigest)
     {
