@@ -185,20 +185,18 @@ public class ResponseRecord : Record
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {
         base.SetContentBlock(contentBlock, isParsed);
-        var index = Utils.IndexOfPayload(contentBlock);
+        ContentBlock = contentBlock;
+        var index = PayloadTypeIdentifier.IndexOfPayload(contentBlock);
         if (index == -1)
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock);
-            Payload = Array.Empty<byte>();
         }
         else
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock[0..index]);
-            Payload = contentBlock[(index + (WarcParser.CrLf.Length * 2))..];
+            Payload = contentBlock[(index + PayloadTypeIdentifier.Delimiter.Length)..];
+            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
         }
-
-        ContentBlock = contentBlock;
-        IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
     }
 
     protected internal override void Set(string field, string value)

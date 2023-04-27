@@ -166,17 +166,29 @@ public class Utils
         return text;
     }
 
-    internal static int IndexOfPayload(byte[] contentBlock)
+    // NOTE: This is no longer used but is left here for backwards compatibility
+    internal static int IndexOfPayload(byte[] contentBlock) => IndexOfPayload(contentBlock, PayloadTypeIdentifier.DefaultDelimiter);
+
+    internal static int IndexOfPayload(byte[] contentBlock, int[] delimiter)
     {
         var index = -1;
-        const int Offset = 4;
-        var length = contentBlock.Length - Offset;
+        var offset = delimiter.Length;
+        var length = contentBlock.Length - offset;
         for (int i = 0; i < length; i++)
         {
-            if (contentBlock[i] == WarcParser.CarriageReturn
-                && contentBlock[i + 1] == WarcParser.LineFeed
-                && contentBlock[i + 2] == WarcParser.CarriageReturn
-                && contentBlock[i + 3] == WarcParser.LineFeed)
+            var isFound = true;
+            for (int j = 0; j < offset; j++)
+            {
+                var content = contentBlock[i + j];
+                var character = delimiter[j];
+                if (content != character)
+                {
+                    isFound = false;
+                    break;
+                }
+            }
+
+            if (isFound)
             {
                 index = i;
                 break;

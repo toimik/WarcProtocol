@@ -172,7 +172,7 @@ public class RequestRecord : Record
     internal override void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {
         base.SetContentBlock(contentBlock, isParsed);
-        var index = Utils.IndexOfPayload(contentBlock);
+        var index = PayloadTypeIdentifier.IndexOfPayload(contentBlock);
         if (index == -1)
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock);

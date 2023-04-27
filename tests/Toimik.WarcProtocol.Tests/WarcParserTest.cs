@@ -12,6 +12,8 @@ using Xunit;
 
 public class WarcParserTest
 {
+    public static readonly string DirectoryForValidRecords = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}";
+
     private const string FileExtensionForCompressed = ".warc.gz";
 
     private const string FileExtensionForUncompressed = ".warc";
@@ -19,8 +21,6 @@ public class WarcParserTest
     private static readonly string DirectoryForInvalidRecords = $"Data{Path.DirectorySeparatorChar}Invalid{Path.DirectorySeparatorChar}";
 
     private static readonly string DirectoryForValid1Point1Records = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}1.1{Path.DirectorySeparatorChar}";
-
-    private static readonly string DirectoryForValidRecords = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}";
 
     private static readonly ISet<string> MergeFilenames = new HashSet<string>
     {
@@ -947,7 +947,7 @@ public class WarcParserTest
     }
 
     private static string CreatePath(
-        string filename,
+                    string filename,
         string version,
         bool isWithoutBlockDigest)
     {

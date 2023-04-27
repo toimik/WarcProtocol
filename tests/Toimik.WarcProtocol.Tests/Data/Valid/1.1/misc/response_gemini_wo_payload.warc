@@ -1,0 +1,11 @@
+WARC/1.1
+WARC-Type: response
+WARC-Record-ID: <urn:uuid:2f66d487-3130-4b2b-a227-9dfa2bc82471>
+WARC-Date: 2023-04-21T12:21:14Z
+Content-Length: 14
+Content-Type: application/gemini; msgtype=response
+WARC-Concurrent-To: <urn:uuid:e540b81b-09f6-4aff-a818-4a132778a3f1>
+WARC-Target-URI: gemini://gemi.dev/why-gemini.gmi
+WARC-Warcinfo-ID: <urn:uuid:d1905d86-66a1-4910-8c69-81ec8f9c2c91>
+
+20 text/gemini

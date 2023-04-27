@@ -18,13 +18,36 @@ namespace Toimik.WarcProtocol;
 
 public class PayloadTypeIdentifier
 {
-    public PayloadTypeIdentifier()
+    internal static readonly int[] DefaultDelimiter = new int[]
     {
+        WarcParser.CarriageReturn,
+        WarcParser.LineFeed,
+        WarcParser.CarriageReturn,
+        WarcParser.LineFeed,
+    };
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PayloadTypeIdentifier"/> class.
+    /// </summary>
+    /// <param name="delimiter">A sequence of characters that identifies the start of a payload. If this is <c>null</c>, it defaults to two pairs of <c>CRLF</c>, which is the one commonly used by HTTP.</c></param>
+    public PayloadTypeIdentifier(int[]? delimiter = null)
+    {
+        Delimiter = delimiter ?? DefaultDelimiter;
     }
+
+    public int[] Delimiter { get; }
 
     public virtual string? Identify(byte[] payload)
     {
         // NOTE: This method is not implemented
         return null;
     }
+
+    /// <summary>
+    /// Gets the index of the payload, if any.
+    /// </summary>
+    /// <param name="contentBlock">The bytes representing the content block of a <see cref="Record"/>.</param>
+    /// <returns>The start index of the payload or <c>-1</c> if none is found.</returns>
+    /// <remarks>The <paramref name="contentBlock"/> is searched to find the first occurrence of the <see cref="Delimiter"/>.</remarks>
+    public int IndexOfPayload(byte[] contentBlock) => Utils.IndexOfPayload(contentBlock, Delimiter);
 }

@@ -1,7 +1,10 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
 using System;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 public class ResponseRecordTest
@@ -35,6 +38,64 @@ public class ResponseRecordTest
         Assert.Equal(ContentType, record.ContentType);
         Assert.Equal(infoId, record.InfoId);
         Assert.Equal(targetUri, record.TargetUri);
-        Assert.Empty(record.Payload!);
+        Assert.Null(record.Payload);
+    }
+
+    [Fact]
+    public async Task ParseWithPayloadThatDoesNotExist()
+    {
+        const string ExpectedRecordBlock = "20 text/gemini";
+        var recordFactory = new RecordFactory(payloadTypeIdentifier: new SingleCrlfPayloadTypeIdentifier());
+        var parser = new WarcParser(recordFactory);
+        var path = $"{WarcParserTest.DirectoryForValidRecords}1.1{Path.DirectorySeparatorChar}misc{Path.DirectorySeparatorChar}response_gemini_wo_payload.warc";
+
+        var records = await parser.Parse(path).ToListAsync().ConfigureAwait(false);
+        var actualRecord = (ResponseRecord)records[0];
+
+        Assert.Equal(ExpectedRecordBlock, actualRecord.RecordBlock);
+        Assert.Null(actualRecord.Payload);
+        Assert.Null(actualRecord.IdentifiedPayloadType);
+    }
+
+    [Fact]
+    public async Task ParseWithPayloadThatExistButDelimitedByCustomDelimiter()
+    {
+        const string ExpectedRecordBlock = "20 text/gemini";
+        var expectedPayload = $"# A test file that doesn't have a double CRLF anywhere.{WarcParser.CrLf}Just A Test";
+        var recordFactory = new RecordFactory(payloadTypeIdentifier: new SingleCrlfPayloadTypeIdentifier());
+        var parser = new WarcParser(recordFactory);
+        var path = $"{WarcParserTest.DirectoryForValidRecords}1.1{Path.DirectorySeparatorChar}misc{Path.DirectorySeparatorChar}response_gemini_w_payload.warc";
+
+        var records = await parser.Parse(path).ToListAsync().ConfigureAwait(false);
+        var actualRecord = (ResponseRecord)records[0];
+
+        Assert.Equal(ExpectedRecordBlock, actualRecord.RecordBlock);
+        var actualPayload = Encoding.UTF8.GetString(actualRecord.Payload!);
+        Assert.Equal(expectedPayload, actualPayload);
+        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, actualRecord.IdentifiedPayloadType);
+    }
+
+    private class SingleCrlfPayloadTypeIdentifier : PayloadTypeIdentifier
+    {
+        public const string PayloadType = "foobar";
+
+        private static readonly int[] GeminiDelimiter = new int[]
+        {
+            WarcParser.CarriageReturn,
+            WarcParser.LineFeed,
+        };
+
+        public SingleCrlfPayloadTypeIdentifier()
+            : base(GeminiDelimiter)
+        {
+        }
+
+        public override string? Identify(byte[] payload)
+        {
+            var type = payload.Length == 0
+                ? null
+                : PayloadType;
+            return type;
+        }
     }
 }
