@@ -70,9 +70,11 @@ public class ResponseRecordTest
         var actualRecord = (ResponseRecord)records[0];
 
         Assert.Equal(ExpectedRecordBlock, actualRecord.RecordBlock);
-        var actualPayload = Encoding.UTF8.GetString(actualRecord.Payload!);
+        var payload = actualRecord.Payload!;
+        var actualPayload = Encoding.UTF8.GetString(payload);
         Assert.Equal(expectedPayload, actualPayload);
         Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, actualRecord.IdentifiedPayloadType);
+        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, actualRecord.PayloadTypeIdentifier.Identify(payload));
     }
 
     private class SingleCrlfPayloadTypeIdentifier : PayloadTypeIdentifier

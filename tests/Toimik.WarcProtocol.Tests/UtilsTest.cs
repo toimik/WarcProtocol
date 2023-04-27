@@ -9,6 +9,7 @@ public class UtilsTest
 {
     public static IEnumerable<object[]> PayloadData => new List<object[]>
     {
+        new object[] { -1, $"foobar", },
         new object[] { 3, $"foo{WarcParser.CrLf}{WarcParser.CrLf}bar", },
         new object[] { 6, $"foobar{WarcParser.CrLf}{WarcParser.CrLf}fuzz", },
     };
@@ -44,5 +45,15 @@ public class UtilsTest
         var actualIndex = Utils.IndexOfPayload(Encoding.UTF8.GetBytes(contentBlock));
 
         Assert.Equal(expectedIndex, actualIndex);
+    }
+
+    [Theory]
+    [InlineData("urn:uuid:d1905d86-66a1-4910-8c69-81ec8f9c2c95", "urn:uuid:d1905d86-66a1-4910-8c69-81ec8f9c2c95")]
+    [InlineData("<urn:uuid:d1905d86-66a1-4910-8c69-81ec8f9c2c95>", "urn:uuid:d1905d86-66a1-4910-8c69-81ec8f9c2c95")]
+    public void RemoveBracketsFromUri(string uri, string expectedUri)
+    {
+        var actualUri = Utils.RemoveBracketsFromUri(uri);
+
+        Assert.Equal(expectedUri, actualUri.ToString());
     }
 }
