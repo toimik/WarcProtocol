@@ -395,6 +395,7 @@ public class WarcParserTest
             actualRecord.SegmentOriginId!,
             actualRecord.SegmentNumber,
             actualRecord.SegmentTotalLength,
+            actualRecord.IdentifiedPayloadType,
             actualRecord.TruncatedReason,
             digestFactory);
 
@@ -449,16 +450,13 @@ public class WarcParserTest
             actualRecord.InfoId!,
             actualRecord.TargetUri!,
             actualRecord.PayloadDigest,
+            actualRecord.IdentifiedPayloadType,
             actualRecord.RefersTo,
             actualRecord.IsSegmented(),
             actualRecord.TruncatedReason,
             digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
-        Assert.Null(expectedRecord.IdentifiedPayloadType);
-
-        // NOTE: See remarks #1
-        Assert.Null(actualRecord.IdentifiedPayloadType);
 
         TestUtils.AssertConversionRecord(
             actualRecord,
@@ -472,10 +470,7 @@ public class WarcParserTest
             ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
         }
 
-        var fields = AssertHeaderAndToString(
-            actualRecord,
-            orderedFields,
-            hasIgnoredIdentifiedPayloadType: true);
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -566,14 +561,13 @@ public class WarcParserTest
             actualRecord.InfoId!,
             actualRecord.TargetUri!,
             actualRecord.PayloadDigest,
+            actualRecord.IdentifiedPayloadType,
             actualRecord.IpAddress,
             actualRecord.ConcurrentTos,
             actualRecord.TruncatedReason,
             digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
-        Assert.Null(expectedRecord.IdentifiedPayloadType);
-        Assert.Null(actualRecord.IdentifiedPayloadType);
 
         TestUtils.AssertRequestRecord(
             actualRecord,
@@ -587,10 +581,7 @@ public class WarcParserTest
             ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
         }
 
-        var fields = AssertHeaderAndToString(
-            actualRecord,
-            orderedFields,
-            hasIgnoredIdentifiedPayloadType: true);
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -626,6 +617,7 @@ public class WarcParserTest
             actualRecord.InfoId!,
             actualRecord.TargetUri!,
             actualRecord.PayloadDigest,
+            actualRecord.IdentifiedPayloadType,
             actualRecord.IpAddress,
             actualRecord.ConcurrentTos,
             actualRecord.IsSegmented(),
@@ -633,10 +625,6 @@ public class WarcParserTest
             digestFactory);
 
         Assert.Equal(expectedRecord.RecordBlock!.Length, actualRecord.ContentLength);
-        Assert.Null(actualRecord.IdentifiedPayloadType);
-
-        // NOTE: See remarks #1
-        Assert.Null(actualRecord.IdentifiedPayloadType);
 
         TestUtils.AssertResourceRecord(
             actualRecord,
@@ -650,10 +638,7 @@ public class WarcParserTest
             ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
         }
 
-        var fields = AssertHeaderAndToString(
-            actualRecord,
-            orderedFields,
-            hasIgnoredIdentifiedPayloadType: true);
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -689,6 +674,7 @@ public class WarcParserTest
             actualRecord.InfoId!,
             actualRecord.TargetUri!,
             actualRecord.PayloadDigest,
+            actualRecord.IdentifiedPayloadType,
             actualRecord.IpAddress,
             actualRecord.ConcurrentTos,
             actualRecord.IsSegmented(),
@@ -696,10 +682,6 @@ public class WarcParserTest
             digestFactory);
 
         Assert.Equal(expectedRecord.ContentBlock!.Length, actualRecord.ContentLength);
-        Assert.Null(expectedRecord.IdentifiedPayloadType);
-
-        // NOTE: See remarks #1
-        Assert.Null(actualRecord.IdentifiedPayloadType);
 
         TestUtils.AssertResponseRecord(
             actualRecord,
@@ -713,10 +695,7 @@ public class WarcParserTest
             ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
         }
 
-        var fields = AssertHeaderAndToString(
-            actualRecord,
-            orderedFields,
-            hasIgnoredIdentifiedPayloadType: true);
+        var fields = AssertHeaderAndToString(actualRecord, orderedFields);
 
         fields.Sort();
         var expectedHeader = expectedRecord.GetHeader(fields);
@@ -892,21 +871,13 @@ public class WarcParserTest
         Assert.Equal(expectedHeader, actualHeader);
     }
 
-    private static List<string> AssertHeaderAndToString(
-        WarcProtocol.Record record,
-        IEnumerable<string> defaultOrderedFields,
-        bool hasIgnoredIdentifiedPayloadType = false)
+    private static List<string> AssertHeaderAndToString(WarcProtocol.Record record, IEnumerable<string> defaultOrderedFields)
     {
         var expectedHeader = record.GetHeader();
         var expectedHeaderTokens = expectedHeader.Split(WarcParser.CrLf, StringSplitOptions.RemoveEmptyEntries);
         var actualFields = new List<string>(defaultOrderedFields);
 
-        // NOTE: WARC-Identified-Payload-Type, if any, is intentionally ignored by the parser
-        // because that value must be independently generated. As the feature is not
-        // implemented, the header will not include the field-value pair.
-        var headerDeclarationAndFieldCount = hasIgnoredIdentifiedPayloadType
-            ? actualFields.Count
-            : actualFields.Count + 1;
+        var headerDeclarationAndFieldCount = actualFields.Count + 1;
         Assert.Equal(expectedHeaderTokens.Length, headerDeclarationAndFieldCount);
 
         var actualHeader = record.GetHeader(actualFields);
@@ -1009,7 +980,3 @@ public class WarcParserTest
         }
     }
 }
-
-// NOTE: (Remarks #1) Although the value is specified, the parser ignores it because the value must
-// be independently identified using PayloadTypeIdentifier.Identify(...), which is not yet
-// implemented

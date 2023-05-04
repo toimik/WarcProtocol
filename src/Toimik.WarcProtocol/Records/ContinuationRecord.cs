@@ -23,6 +23,8 @@ using System.Collections.Generic;
 
 public class ContinuationRecord : Record
 {
+    public const string FieldForIdentifiedPayloadType = "warc-identified-payload-type";
+
     public const string FieldForInfoId = "warc-warcinfo-id";
 
     public const string FieldForPayloadDigest = "warc-payload-digest";
@@ -51,6 +53,7 @@ public class ContinuationRecord : Record
         FieldForSegmentOriginId,
         FieldForSegmentNumber,
         FieldForSegmentTotalLength,
+        FieldForIdentifiedPayloadType,
     };
 
     public ContinuationRecord(
@@ -62,6 +65,7 @@ public class ContinuationRecord : Record
         Uri segmentOriginId,
         int segmentNumber,
         int? segmentTotalLength = null,
+        string? identifiedPayloadType = null,
         string? truncatedReason = null,
         DigestFactory? digestFactory = null)
         : this(
@@ -75,6 +79,7 @@ public class ContinuationRecord : Record
               segmentOriginId,
               segmentNumber,
               segmentTotalLength,
+              identifiedPayloadType,
               truncatedReason,
               digestFactory)
     {
@@ -91,6 +96,7 @@ public class ContinuationRecord : Record
         Uri segmentOriginId,
         int segmentNumber,
         int? segmentTotalLength = null,
+        string? identifiedPayloadType = null,
         string? truncatedReason = null,
         DigestFactory? digestFactory = null)
         : base(
@@ -106,6 +112,7 @@ public class ContinuationRecord : Record
 
         // REMINDER: This is not auto-generated because it must be identical to the source's
         PayloadDigest = payloadDigest;
+        IdentifiedPayloadType ??= identifiedPayloadType;
         InfoId = infoId;
         TargetUri = targetUri;
         SegmentOriginId = segmentOriginId;
@@ -126,6 +133,8 @@ public class ContinuationRecord : Record
               digestFactory: digestFactory)
     {
     }
+
+    public string? IdentifiedPayloadType { get; private set; }
 
     public Uri? InfoId { get; private set; }
 
@@ -156,6 +165,10 @@ public class ContinuationRecord : Record
     {
         switch (field.ToLower())
         {
+            case FieldForIdentifiedPayloadType:
+                IdentifiedPayloadType = value;
+                break;
+
             case FieldForInfoId:
                 InfoId = Utils.RemoveBracketsFromUri(value);
                 break;
@@ -203,6 +216,10 @@ public class ContinuationRecord : Record
 
             case FieldForDate:
                 text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
+                break;
+
+            case FieldForIdentifiedPayloadType:
+                text = ToString("WARC-Identified-Payload-Type", IdentifiedPayloadType);
                 break;
 
             case FieldForInfoId:

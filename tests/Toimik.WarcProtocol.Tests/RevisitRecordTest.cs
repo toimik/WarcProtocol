@@ -6,7 +6,7 @@ using Xunit;
 public class RevisitRecordTest
 {
     [Fact]
-    public void InstantiateUsingConstructorWithFewerParameters()
+    public void CreateWithFewerParameters()
     {
         var now = DateTime.Now;
         const string RecordBlock = "foobar";
@@ -14,6 +14,7 @@ public class RevisitRecordTest
         var infoId = Utils.CreateId();
         var targetUri = new Uri("http://www.example.com");
         var profile = new Uri("http://netpreserve.org/warc/1.1/revisit/identical-payload-digest");
+
         var record = new RevisitRecord(
             now,
             RecordBlock,

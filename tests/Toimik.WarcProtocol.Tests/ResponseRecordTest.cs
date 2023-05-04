@@ -10,7 +10,44 @@ using Xunit;
 public class ResponseRecordTest
 {
     [Fact]
-    public void InstantiateUsingConstructorWithFewerParameters()
+    public void CreateWithCustomPayloadTypeIdentifierAndContentBlockWithoutPayload()
+    {
+        const string ExpectedRecordBlock = "20 text/gemini";
+        var record = new ResponseRecord(
+            DateTime.Now,
+            new SingleCrlfPayloadTypeIdentifier(),
+            contentBlock: Encoding.UTF8.GetBytes(ExpectedRecordBlock),
+            contentType: "application/gemini; msgtype=response",
+            infoId: new Uri("urn:uuid:1d0cf87c-b70a-4df6-9ff8-dd599494058d"),
+            targetUri: new Uri("gemini://gemi.dev/why-gemini.gmi"));
+
+        Assert.Equal(ExpectedRecordBlock, record.RecordBlock);
+        Assert.Null(record.Payload);
+        Assert.Null(record.IdentifiedPayloadType);
+    }
+
+    [Fact]
+    public void CreateWithCustomPayloadTypeIdentifierAndContentBlockWithPayload()
+    {
+        const string ExpectedRecordBlock = "20 text/gemini";
+        var expectedPayload = $"# A test file that doesn't have a double CRLF anywhere.{WarcParser.CrLf}Just A Test";
+        var contentBlock = $"{ExpectedRecordBlock}{SingleCrlfPayloadTypeIdentifier.CreateDelimiterText(SingleCrlfPayloadTypeIdentifier.GeminiDelimiter)}{expectedPayload}";
+        var record = new ResponseRecord(
+            DateTime.Now,
+            new SingleCrlfPayloadTypeIdentifier(),
+            contentBlock: Encoding.UTF8.GetBytes(contentBlock),
+            contentType: "application/gemini; msgtype=response",
+            infoId: new Uri("urn:uuid:1d0cf87c-b70a-4df6-9ff8-dd599494058d"),
+            targetUri: new Uri("gemini://gemi.dev/why-gemini.gmi"));
+
+        Assert.Equal(ExpectedRecordBlock, record.RecordBlock);
+        var actualPayload = Encoding.UTF8.GetString(record.Payload!);
+        Assert.Equal(expectedPayload, actualPayload);
+        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, record.IdentifiedPayloadType);
+    }
+
+    [Fact]
+    public void CreateWithFewerParameters()
     {
         var now = DateTime.Now;
         var payloadTypeIdentifier = new PayloadTypeIdentifier();
@@ -20,6 +57,7 @@ public class ResponseRecordTest
         const string ContentType = "application/http;msgtype=response";
         var infoId = Utils.CreateId();
         var targetUri = new Uri("http://www.example.com");
+
         var record = new ResponseRecord(
             now,
             payloadTypeIdentifier,
@@ -42,7 +80,7 @@ public class ResponseRecordTest
     }
 
     [Fact]
-    public async Task ParseWithPayloadThatDoesNotExist()
+    public async Task ParseWithCustomPayloadTypeIdentifierAndContentBlockWithoutPayload()
     {
         const string ExpectedRecordBlock = "20 text/gemini";
         var recordFactory = new RecordFactory(payloadTypeIdentifier: new SingleCrlfPayloadTypeIdentifier());
@@ -58,7 +96,7 @@ public class ResponseRecordTest
     }
 
     [Fact]
-    public async Task ParseWithPayloadThatExistButDelimitedByCustomDelimiter()
+    public async Task ParseWithCustomPayloadTypeIdentifierAndContentBlockWithPayload()
     {
         const string ExpectedRecordBlock = "20 text/gemini";
         var expectedPayload = $"# A test file that doesn't have a double CRLF anywhere.{WarcParser.CrLf}Just A Test";
@@ -73,31 +111,8 @@ public class ResponseRecordTest
         var payload = actualRecord.Payload!;
         var actualPayload = Encoding.UTF8.GetString(payload);
         Assert.Equal(expectedPayload, actualPayload);
-        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, actualRecord.IdentifiedPayloadType);
-        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, actualRecord.PayloadTypeIdentifier.Identify(payload));
-    }
-
-    private class SingleCrlfPayloadTypeIdentifier : PayloadTypeIdentifier
-    {
-        public const string PayloadType = "foobar";
-
-        private static readonly int[] GeminiDelimiter = new int[]
-        {
-            WarcParser.CarriageReturn,
-            WarcParser.LineFeed,
-        };
-
-        public SingleCrlfPayloadTypeIdentifier()
-            : base(GeminiDelimiter)
-        {
-        }
-
-        public override string? Identify(byte[] payload)
-        {
-            var type = payload.Length == 0
-                ? null
-                : PayloadType;
-            return type;
-        }
+        var identifiedPayloadType = actualRecord.PayloadTypeIdentifier.Identify(payload);
+        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, identifiedPayloadType);
+        Assert.Null(actualRecord.IdentifiedPayloadType);
     }
 }

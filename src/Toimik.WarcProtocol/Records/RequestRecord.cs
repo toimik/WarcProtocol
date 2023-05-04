@@ -66,6 +66,7 @@ public class RequestRecord : Record
         Uri infoId,
         Uri targetUri,
         string? payloadDigest = null,
+        string? identifiedPayloadType = null,
         IPAddress? ipAddress = null,
         ISet<Uri>? concurrentTos = null,
         string? truncatedReason = null,
@@ -80,6 +81,7 @@ public class RequestRecord : Record
               infoId,
               targetUri,
               payloadDigest,
+              identifiedPayloadType,
               ipAddress,
               concurrentTos,
               truncatedReason,
@@ -97,6 +99,7 @@ public class RequestRecord : Record
         Uri infoId,
         Uri targetUri,
         string? payloadDigest = null,
+        string? identifiedPayloadType = null,
         IPAddress? ipAddress = null,
         ISet<Uri>? concurrentTos = null,
         string? truncatedReason = null,
@@ -115,6 +118,7 @@ public class RequestRecord : Record
         SetContentBlock(contentBlock, isParsed);
 
         PayloadDigest = payloadDigest;
+        IdentifiedPayloadType ??= identifiedPayloadType;
         if (contentBlock.Length > 0)
         {
             ContentType = contentType;
@@ -176,22 +180,22 @@ public class RequestRecord : Record
         if (index == -1)
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock);
-            Payload = Array.Empty<byte>();
         }
         else
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock[0..index]);
-            Payload = contentBlock[(index + (WarcParser.CrLf.Length * 2))..];
+            Payload = contentBlock[(index + PayloadTypeIdentifier.Delimiter.Length)..];
+            if (!isParsed)
+            {
+                IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
+            }
         }
 
         ContentBlock = contentBlock;
-        IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
     }
 
     protected internal override void Set(string field, string value)
     {
-        // NOTE: FieldForIdentifiedPayloadType, if any, is ignored because it is supposed to be
-        // auto detected when the content block is set
         switch (field.ToLower())
         {
             case FieldForConcurrentTo:
@@ -200,6 +204,10 @@ public class RequestRecord : Record
 
             case FieldForContentType:
                 ContentType = value;
+                break;
+
+            case FieldForIdentifiedPayloadType:
+                IdentifiedPayloadType = value;
                 break;
 
             case FieldForInfoId:
@@ -253,6 +261,10 @@ public class RequestRecord : Record
 
             case FieldForDate:
                 text = $"WARC-Date: {Utils.FormatDate(Date)}{WarcParser.CrLf}";
+                break;
+
+            case FieldForIdentifiedPayloadType:
+                text = ToString("WARC-Identified-Payload-Type", IdentifiedPayloadType);
                 break;
 
             case FieldForInfoId:

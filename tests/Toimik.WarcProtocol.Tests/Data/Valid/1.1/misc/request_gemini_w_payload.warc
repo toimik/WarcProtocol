@@ -1,0 +1,13 @@
+WARC/1.1
+WARC-IP-Address: 174.138.124.161
+WARC-Type: request
+WARC-Record-ID: <urn:uuid:1d0cf87c-b70a-4df6-9ff8-dd599494058d>
+WARC-Target-URI: gemini://gemi.dev/why-gemini.gmi
+WARC-Date: 2021-09-17T16:39:20.181428Z
+WARC-Concurrent-To: <urn:uuid:ac548616-a66c-44bd-bdfb-faa7eceaae71>
+Content-Type: application/gemini; msgtype=request
+Content-Length: 102
+
+gemini://gemi.dev/why-gemini.gmi
+# A test file that doesn't have a double CRLF anywhere.
+Just A Test

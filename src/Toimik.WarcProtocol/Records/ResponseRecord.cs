@@ -69,6 +69,7 @@ public class ResponseRecord : Record
         Uri infoId,
         Uri targetUri,
         string? payloadDigest = null,
+        string? identifiedPayloadType = null,
         IPAddress? ipAddress = null,
         ISet<Uri>? concurrentTos = null,
         bool isSegmented = false,
@@ -84,6 +85,7 @@ public class ResponseRecord : Record
               infoId,
               targetUri,
               payloadDigest,
+              identifiedPayloadType,
               ipAddress,
               concurrentTos,
               isSegmented,
@@ -102,6 +104,7 @@ public class ResponseRecord : Record
         Uri infoId,
         Uri targetUri,
         string? payloadDigest = null,
+        string? identifiedPayloadType = null,
         IPAddress? ipAddress = null,
         ISet<Uri>? concurrentTos = null,
         bool isSegmented = false,
@@ -121,6 +124,7 @@ public class ResponseRecord : Record
         SetContentBlock(contentBlock, isParsed);
 
         PayloadDigest = payloadDigest;
+        IdentifiedPayloadType ??= identifiedPayloadType;
         if (contentBlock.Length > 0)
         {
             ContentType = contentType;
@@ -195,14 +199,15 @@ public class ResponseRecord : Record
         {
             RecordBlock = Encoding.UTF8.GetString(contentBlock[0..index]);
             Payload = contentBlock[(index + PayloadTypeIdentifier.Delimiter.Length)..];
-            IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
+            if (!isParsed)
+            {
+                IdentifiedPayloadType = PayloadTypeIdentifier.Identify(Payload);
+            }
         }
     }
 
     protected internal override void Set(string field, string value)
     {
-        // NOTE: FieldForIdentifiedPayloadType, if any, is ignored because it is supposed to be
-        // auto detected when the content block is set
         switch (field.ToLower())
         {
             case FieldForConcurrentTo:
@@ -211,6 +216,10 @@ public class ResponseRecord : Record
 
             case FieldForContentType:
                 ContentType = value;
+                break;
+
+            case FieldForIdentifiedPayloadType:
+                IdentifiedPayloadType = value;
                 break;
 
             case FieldForInfoId:

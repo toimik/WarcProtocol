@@ -7,6 +7,35 @@ using Xunit;
 public class ResourceRecordTest
 {
     [Fact]
+    public void CreateWithCustomPayloadTypeIdentifierAndRecordBlockThatIsThePayload()
+    {
+        var record = new ResourceRecord(
+            DateTime.Now,
+            new SingleCrlfPayloadTypeIdentifier(),
+            recordBlock: Encoding.UTF8.GetBytes("foo"),
+            contentType: "text/plain",
+            infoId: Utils.CreateId(),
+            targetUri: new Uri("dns://example.com"));
+
+        Assert.Equal(SingleCrlfPayloadTypeIdentifier.PayloadType, record.IdentifiedPayloadType);
+    }
+
+    [Fact]
+    public void CreateWithRecordBlockThatIsThePayload()
+    {
+        var record = new ResourceRecord(
+            DateTime.Now,
+            new PayloadTypeIdentifier(),
+            recordBlock: Encoding.UTF8.GetBytes("foo"),
+            contentType: "text/plain",
+            infoId: Utils.CreateId(),
+            targetUri: new Uri("dns://example.com"));
+
+        Assert.Null(record.PayloadDigest);
+        Assert.Null(record.IdentifiedPayloadType);
+    }
+
+    [Fact]
     public void WithContinuation()
     {
         var now = DateTime.Now;
@@ -17,6 +46,7 @@ public class ResourceRecordTest
         var infoId = Utils.CreateId();
         var targetUri = new Uri("http://www.example.com");
         var recordBlock = "foo";
+
         var resourceRecord = new ResourceRecord(
             now,
             payloadTypeIdentifier,
@@ -29,7 +59,8 @@ public class ResourceRecordTest
         Assert.Equal("1.1", resourceRecord.Version);
         Assert.NotNull(resourceRecord.Id);
         Assert.Equal(payloadTypeIdentifier, resourceRecord.PayloadTypeIdentifier);
-        Assert.Equal(recordBlock, Encoding.UTF8.GetString(resourceRecord.RecordBlock!));
+        var actualRecordBlock = Encoding.UTF8.GetString(resourceRecord.RecordBlock!);
+        Assert.Equal(recordBlock, actualRecordBlock);
         Assert.Equal(ContentType, resourceRecord.ContentType);
 
         recordBlock = "bar";
@@ -45,24 +76,11 @@ public class ResourceRecordTest
         Assert.Equal("1.1", continuationRecord.Version);
         Assert.NotNull(continuationRecord.Id);
         Assert.Equal(now, continuationRecord.Date);
-        Assert.Equal(recordBlock, Encoding.UTF8.GetString(continuationRecord.RecordBlock!));
+        actualRecordBlock = Encoding.UTF8.GetString(continuationRecord.RecordBlock!);
+        Assert.Equal(recordBlock, actualRecordBlock);
         Assert.Equal(payloadDigest, continuationRecord.PayloadDigest);
         Assert.Equal(targetUri, continuationRecord.TargetUri);
         Assert.Equal(infoId, continuationRecord.InfoId);
         Assert.Equal(2, continuationRecord.SegmentNumber);
-    }
-
-    [Fact]
-    public void WithoutPayloadDigest()
-    {
-        var resourceRecord = new ResourceRecord(
-            DateTime.Now,
-            new PayloadTypeIdentifier(),
-            Encoding.UTF8.GetBytes("foo"),
-            contentType: "text/plain",
-            infoId: Utils.CreateId(),
-            targetUri: new Uri("dns://example.com"));
-
-        Assert.Null(resourceRecord.PayloadDigest);
     }
 }

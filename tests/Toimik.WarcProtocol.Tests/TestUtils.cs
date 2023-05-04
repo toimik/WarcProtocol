@@ -35,6 +35,8 @@ public class TestUtils
         Assert.Equal(ContinuationRecord.TypeName, record.Type);
         Assert.Equal(new Uri("urn:uuid:b92e8444-34cf-472f-a86e-07b7845ecc05"), record.InfoId);
         Assert.Equal(83, record.ContentLength);
+        Assert.Equal("foobar", record.TruncatedReason);
+        Assert.Equal("text/dns", record.IdentifiedPayloadType);
     }
 
     public static void AssertConversionRecord(
@@ -59,6 +61,8 @@ public class TestUtils
         Assert.Equal("text/plain", record.ContentType);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal("application/octet-stream", actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
+        Assert.Equal("text/plain", record.IdentifiedPayloadType);
     }
 
     public static void AssertMetadataRecord(
@@ -83,6 +87,7 @@ public class TestUtils
         Assert.Equal(62, record.ContentLength);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal(record.ContentType, actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
     }
 
     public static void AssertRequestRecord(
@@ -107,6 +112,8 @@ public class TestUtils
         Assert.Equal(190, record.ContentLength);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal(record.ContentType, actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
+        Assert.Equal("foo/bar", record.IdentifiedPayloadType);
     }
 
     public static void AssertResourceRecord(
@@ -133,6 +140,8 @@ public class TestUtils
         Assert.Equal("text/dns", record.ContentType);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal("text/dns", actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
+        Assert.Equal("text/plain", record.IdentifiedPayloadType);
     }
 
     public static void AssertResponseRecord(
@@ -158,6 +167,8 @@ public class TestUtils
         Assert.Equal(1679, record.ContentLength);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal(record.ContentType, actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
+        Assert.Equal("text/html", record.IdentifiedPayloadType);
     }
 
     public static void AssertRevisitRecordForIdentical(
@@ -186,6 +197,7 @@ public class TestUtils
         Assert.Equal("irrelevant/but-still-parsed-for-preservation", record.ContentType);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal("application/octet-stream", actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
     }
 
     public static void AssertRevisitRecordForUnmodified(
@@ -214,6 +226,7 @@ public class TestUtils
         Assert.Equal("message/http", record.ContentType);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal("application/octet-stream", actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
     }
 
     public static void AssertWarcinfoRecord(WarcinfoRecord record, bool isWithoutBlockDigest = false)
@@ -231,6 +244,7 @@ public class TestUtils
         Assert.Equal(241, record.ContentLength);
         var actualContentType = new ContentTypeIdentifier().Identify(record);
         Assert.Equal(record.ContentType, actualContentType);
+        Assert.Equal("foobar", record.TruncatedReason);
     }
 
     [ExcludeFromCodeCoverage]
@@ -307,10 +321,6 @@ public class TestUtils
 
                 case ConversionRecord.TypeName:
                     var conversionRecord = (ConversionRecord)record;
-
-                    // NOTE: See remarks #1
-                    Assert.Null(conversionRecord.IdentifiedPayloadType);
-
                     AssertConversionRecord(conversionRecord, version: "1.1");
                     recordCounter++;
                     break;
@@ -322,7 +332,6 @@ public class TestUtils
 
                 case RequestRecord.TypeName:
                     var requestRecord = (RequestRecord)record;
-                    Assert.Null(requestRecord.IdentifiedPayloadType);
                     AssertRequestRecord(requestRecord, version: "1.1");
                     recordCounter++;
                     break;
@@ -334,10 +343,6 @@ public class TestUtils
 
                 case ResponseRecord.TypeName:
                     var responseRecord = (ResponseRecord)record;
-
-                    // NOTE: See remarks #1
-                    Assert.Null(responseRecord.IdentifiedPayloadType);
-
                     AssertResponseRecord(responseRecord, version: "1.1");
                     recordCounter++;
                     break;

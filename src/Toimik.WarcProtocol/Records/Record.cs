@@ -102,8 +102,7 @@ public abstract class Record
     internal virtual void SetContentBlock(byte[] contentBlock, bool isParsed = true)
     {
         /* Depending on the record's type, a content block consists of a record block and / or a
-         * payload. If both exists, they are delimited by a consecutive pair of '\r\n' where the
-         * first pair is found at the end of a line and the other is on its own line.
+         * payload. The subclasses are responsible to detect those values.
          */
 
         if (!isParsed)

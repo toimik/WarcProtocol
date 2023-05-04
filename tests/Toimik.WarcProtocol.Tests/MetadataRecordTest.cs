@@ -6,7 +6,7 @@ using Xunit;
 public class MetadataRecordTest
 {
     [Fact]
-    public void InstantiateUsingConstructorWithFewerParameters()
+    public void CreateWithFewerParameters()
     {
         var now = DateTime.Now;
         var contentBlock = "foobar";

@@ -6,12 +6,13 @@ using Xunit;
 public class WarcinfoRecordTest
 {
     [Fact]
-    public void InstantiateUsingConstructorWithFewerParameters()
+    public void CreateWithFewerParameters()
     {
         var now = DateTime.Now;
         const string ContentBlock = "...";
         const string ContentType = "application/warc-fields";
         const string Filename = "filename.warc";
+
         var record = new WarcinfoRecord(
             now,
             ContentBlock,
