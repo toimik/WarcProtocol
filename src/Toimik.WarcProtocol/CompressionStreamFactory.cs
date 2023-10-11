@@ -16,8 +16,8 @@
 
 namespace Toimik.WarcProtocol;
 
+using ICSharpCode.SharpZipLib.GZip;
 using System.IO;
-using System.IO.Compression;
 
 public class CompressionStreamFactory
 {
@@ -27,9 +27,6 @@ public class CompressionStreamFactory
 
     public virtual Stream CreateDecompressStream(Stream stream)
     {
-        return new GZipStream(
-            stream,
-            CompressionMode.Decompress,
-            leaveOpen: true);
+        return new GZipInputStream(stream);
     }
 }
