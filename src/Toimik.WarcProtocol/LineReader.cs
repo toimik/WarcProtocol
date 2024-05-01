@@ -25,11 +25,11 @@ using System.Threading.Tasks;
 
 public class LineReader(Stream stream, CancellationToken cancellationToken)
 {
-    private static readonly IList<int> EolCharacters = new List<int>
-    {
+    private static readonly IList<int> EolCharacters =
+    [
         WarcParser.CarriageReturn,
         WarcParser.LineFeed,
-    };
+    ];
 
     public CancellationToken CancellationToken { get; } = cancellationToken;
 

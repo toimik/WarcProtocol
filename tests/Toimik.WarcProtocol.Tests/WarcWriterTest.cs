@@ -36,9 +36,8 @@ public class WarcWriterTest
     public async Task OutputUncompressedWarcMatchesInputWarc(string filename)
         => await OutputWarcMatchesInputWarc(filename, ".warc");
 
-    // This tests how WarcWriter writes records (either uncompressed, or with
-    // per-record compression) by round-tripping data from a known good source WARC files.
-    // Specifically:
+    // This tests how WarcWriter writes records (either uncompressed, or with per-record
+    // compression) by round-tripping data from a known good source WARC files. Specifically:
     // - reads source WARC through the parser to get records
     // - write those records in order to a temp, output WARC file
     // - Read back in records from output WARC to validate total record count and order of record types
@@ -51,7 +50,7 @@ public class WarcWriterTest
             var sourceWarc = $"{DirectoryForValid1Point1Records}{sourceFilename}";
             var outputWarc = TestUtils.CreateTempFile(outputExtension);
 
-            List<string> sourceRecordTypes = new List<string>();
+            List<string> sourceRecordTypes = [];
 
             using (var warcWriter = new WarcWriter(outputWarc))
             {

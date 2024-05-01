@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ public class RevisitRecord : Record
 
     public const string TypeName = "revisit";
 
-    internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
-    {
+    internal static readonly IEnumerable<string> DefaultOrderedFields =
+    [
         FieldForType,
         FieldForRecordId,
         FieldForDate,
@@ -62,7 +62,7 @@ public class RevisitRecord : Record
         FieldForTruncated,
         FieldForInfoId,
         FieldForProfile,
-    };
+    ];
 
     public RevisitRecord(
         DateTime date,

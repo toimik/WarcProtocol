@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ public class WarcinfoRecord : Record
 
     public const string TypeName = "warcinfo";
 
-    internal static readonly IEnumerable<string> DefaultOrderedFields = new List<string>
-    {
+    internal static readonly IEnumerable<string> DefaultOrderedFields =
+    [
         FieldForType,
         FieldForRecordId,
         FieldForDate,
@@ -40,7 +40,7 @@ public class WarcinfoRecord : Record
         FieldForBlockDigest,
         FieldForTruncated,
         FieldForFilename,
-    };
+    ];
 
     public WarcinfoRecord(
         DateTime date,
@@ -105,8 +105,7 @@ public class WarcinfoRecord : Record
     {
     }
 
-    // NOTE: May contain technical information such as base encoding of the digests used in
-    // named fields
+    // NOTE: May contain technical information such as base encoding of the digests used in named fields
     public string? ContentBlock { get; private set; }
 
     public string? ContentType { get; private set; }

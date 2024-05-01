@@ -7,12 +7,12 @@ using Xunit;
 
 public class UtilsTest
 {
-    public static IEnumerable<object[]> PayloadData => new List<object[]>
-    {
-        new object[] { -1, $"foobar", },
-        new object[] { 3, $"foo{WarcParser.CrLf}{WarcParser.CrLf}bar", },
-        new object[] { 6, $"foobar{WarcParser.CrLf}{WarcParser.CrLf}fuzz", },
-    };
+    public static IEnumerable<object[]> PayloadData =>
+    [
+        [-1, $"foobar",],
+        [3, $"foo{WarcParser.CrLf}{WarcParser.CrLf}bar",],
+        [6, $"foobar{WarcParser.CrLf}{WarcParser.CrLf}fuzz",],
+    ];
 
     [Fact]
     public void AddBracketsToUriWithUriThatIsNull()

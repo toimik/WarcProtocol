@@ -22,13 +22,13 @@ namespace Toimik.WarcProtocol;
 /// commonly used by HTTP.</c></param>
 public class PayloadTypeIdentifier(int[]? delimiter = null)
 {
-    internal static readonly int[] DefaultDelimiter = new int[]
-    {
+    internal static readonly int[] DefaultDelimiter =
+    [
         WarcParser.CarriageReturn,
         WarcParser.LineFeed,
         WarcParser.CarriageReturn,
         WarcParser.LineFeed,
-    };
+    ];
 
     public int[] Delimiter { get; } = delimiter ?? DefaultDelimiter;
 

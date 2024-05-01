@@ -6,11 +6,11 @@ public class SingleCrlfPayloadTypeIdentifier : PayloadTypeIdentifier
 {
     public const string PayloadType = "foobar";
 
-    public static readonly int[] GeminiDelimiter = new int[]
-    {
+    public static readonly int[] GeminiDelimiter =
+    [
         WarcParser.CarriageReturn,
         WarcParser.LineFeed,
-    };
+    ];
 
     public SingleCrlfPayloadTypeIdentifier()
         : base(GeminiDelimiter)
