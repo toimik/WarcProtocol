@@ -92,7 +92,7 @@ public class RequestRecordTest
         var parser = new WarcParser(recordFactory);
         var path = $"{WarcParserTest.DirectoryForValidRecords}1.1{Path.DirectorySeparatorChar}misc{Path.DirectorySeparatorChar}request_gemini_wo_payload.warc";
 
-        var records = await parser.Parse(path).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path).ToListAsync();
         var actualRecord = (RequestRecord)records[0];
 
         Assert.Equal(ExpectedRecordBlock, actualRecord.RecordBlock);
@@ -109,7 +109,7 @@ public class RequestRecordTest
         var parser = new WarcParser(recordFactory);
         var path = $"{WarcParserTest.DirectoryForValidRecords}1.1{Path.DirectorySeparatorChar}misc{Path.DirectorySeparatorChar}request_gemini_w_payload.warc";
 
-        var records = await parser.Parse(path).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path).ToListAsync();
         var actualRecord = (RequestRecord)records[0];
 
         Assert.Equal(ExpectedRecordBlock, actualRecord.RecordBlock);

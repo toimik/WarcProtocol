@@ -1,5 +1,6 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
+using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.GZip;
 using Xunit;
 
 public class WarcParserTest
@@ -42,7 +42,7 @@ public class WarcParserTest
         var path = $"{DirectoryForInvalidRecords}short_content_block.warc";
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
 
         Assert.Empty(records);
         var actualMessage = parseLog.Messages[0];
@@ -56,7 +56,7 @@ public class WarcParserTest
 
         var path = $"{DirectoryForInvalidRecords}short_content_block.warc";
 
-        var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync().ConfigureAwait(false)).ConfigureAwait(false);
+        var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
         Assert.Contains("Content block is", ex.Message);
     }
 
@@ -67,7 +67,7 @@ public class WarcParserTest
         var path = $"{DirectoryForInvalidRecords}malformed_header.warc";
         var parseLog = new CustomParseLog();
 
-        await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        await parser.Parse(path, parseLog).ToListAsync();
 
         var expectedMessages = new List<string>
         {
@@ -118,7 +118,7 @@ public class WarcParserTest
 
         var path = $"{DirectoryForInvalidRecords}malformed_header.warc";
 
-        await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync().ConfigureAwait(false)).ConfigureAwait(false);
+        await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class WarcParserTest
         var path = $"{DirectoryForInvalidRecords}missing_header_field.warc";
         var parseLog = new CustomParseLog();
 
-        await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        await parser.Parse(path, parseLog).ToListAsync();
 
         var expectedCounter = 4;
         Assert.Equal(expectedCounter, parseLog.Messages.Count);
@@ -140,7 +140,7 @@ public class WarcParserTest
         var parser = new WarcParser();
         var path = $"{DirectoryForInvalidRecords}missing_header_field.warc";
 
-        var exception = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync().ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
         Assert.Contains("One of the mandatory header fields is missing", exception.Message);
     }
 
@@ -153,7 +153,7 @@ public class WarcParserTest
         var path = $"{DirectoryForInvalidRecords}{filename}";
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
 
         Assert.Empty(records);
         var actualMessage = parseLog.Messages[0];
@@ -169,7 +169,7 @@ public class WarcParserTest
 
         var path = $"{DirectoryForInvalidRecords}{filename}";
 
-        var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync().ConfigureAwait(false)).ConfigureAwait(false);
+        var ex = await Assert.ThrowsAsync<FormatException>(async () => await parser.Parse(path).ToListAsync());
         Assert.Contains("Premature end of file", ex.Message);
     }
 
@@ -189,7 +189,7 @@ public class WarcParserTest
         var records = parser.Parse(path, parseLog);
 
         var index = 0;
-        await foreach (WarcProtocol.Record record in records.ConfigureAwait(false))
+        await foreach (WarcProtocol.Record record in records)
         {
             var expectedContent = expectedContents[index];
             var actualContent = Encoding.UTF8.GetString(((ResourceRecord)record).RecordBlock!);
@@ -232,7 +232,7 @@ public class WarcParserTest
             var path = $"{DirectoryForValid1Point1Records}{filename}";
             tempCompressedFile = CompressFile(path);
 
-            await TestUtils.TestFile(tempCompressedFile, recordCount: 1).ConfigureAwait(false);
+            await TestUtils.TestFile(tempCompressedFile, recordCount: 1);
         }
         finally
         {
@@ -269,7 +269,7 @@ public class WarcParserTest
             await TestUtils.TestFile(
                 path,
                 MergeFilenames.Count,
-                compressionStreamFactory).ConfigureAwait(false);
+                compressionStreamFactory);
         }
         finally
         {
@@ -286,7 +286,7 @@ public class WarcParserTest
             path = TestUtils.CreateTempFile(FileExtensionForUncompressed);
             MergeUncompressedRecords(path);
 
-            await TestUtils.TestFile(path, MergeFilenames.Count).ConfigureAwait(false);
+            await TestUtils.TestFile(path, MergeFilenames.Count);
         }
         finally
         {
@@ -313,7 +313,7 @@ public class WarcParserTest
             await TestUtils.TestFile(
                 tempCompressedFile,
                 MergeFilenames.Count,
-                compressionStreamFactory).ConfigureAwait(false);
+                compressionStreamFactory);
         }
         finally
         {
@@ -328,7 +328,7 @@ public class WarcParserTest
         var parser = new WarcParser();
         var path = $"{DirectoryForInvalidRecords}multiline_header_values.warc";
 
-        var records = await parser.Parse(path).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path).ToListAsync();
         var record = (ResourceRecord)records[0];
 
         Assert.Equal("1.0", record.Version);
@@ -344,7 +344,7 @@ public class WarcParserTest
         var parser = new WarcParser();
         var path = $"{DirectoryForInvalidRecords}incorrect_content_length.warc";
 
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await parser.Parse(path, byteOffset: 1000).ToListAsync().ConfigureAwait(false)).ConfigureAwait(false);
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await parser.Parse(path, byteOffset: 1000).ToListAsync());
 
         Assert.Contains("Offset exceeds file size", exception.Message);
     }
@@ -355,7 +355,7 @@ public class WarcParserTest
         var parser = new WarcParser();
         var path = $"{DirectoryForInvalidRecords}incorrect_content_length.warc";
 
-        var records = await parser.Parse(path, byteOffset: 697).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, byteOffset: 697).ToListAsync();
         var record = (ResourceRecord)records[0];
 
         Assert.Equal("1.1", record.Version);
@@ -380,7 +380,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (ContinuationRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -436,7 +436,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (ConversionRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -492,7 +492,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (MetadataRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -547,7 +547,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (RequestRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -603,7 +603,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (ResourceRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -660,7 +660,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (ResponseRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -717,7 +717,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (RevisitRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -759,8 +759,8 @@ public class WarcParserTest
         var expectedHeader = expectedRecord.GetHeader(fields);
 
         // NOTE: Parsing warc files will preserve the value of Content-Type, if any. However,
-        // creating a record with a Content-Length of zero will cause a non-null Content-Type to
-        // be null. Thus, the Content-Type for this record is removed.
+        // creating a record with a Content-Length of zero will cause a non-null Content-Type to be
+        // null. Thus, the Content-Type for this record is removed.
         fields.Remove(RevisitRecord.FieldForContentType);
 
         var actualHeader = actualRecord.GetHeader(fields);
@@ -781,7 +781,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (RevisitRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
@@ -837,7 +837,7 @@ public class WarcParserTest
             isWithoutBlockDigest);
         var parseLog = new CustomParseLog();
 
-        var records = await parser.Parse(path, parseLog).ToListAsync().ConfigureAwait(false);
+        var records = await parser.Parse(path, parseLog).ToListAsync();
         var actualRecord = (WarcinfoRecord)records[0];
 
         var digestFactory = CreateDigestFactory(actualRecord.BlockDigest);
