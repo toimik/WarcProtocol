@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
 
 namespace Toimik.WarcProtocol;
 
-public class PayloadTypeIdentifier
+/// <summary> Initializes a new instance of the <see cref="PayloadTypeIdentifier"/> class.
+/// </summary> <param name="delimiter">A sequence of characters that identifies the start of a
+/// payload. If this is <c>null</c>, it defaults to two pairs of <c>CRLF</c>, which is the one
+/// commonly used by HTTP.</c></param>
+public class PayloadTypeIdentifier(int[]? delimiter = null)
 {
     internal static readonly int[] DefaultDelimiter = new int[]
     {
@@ -26,16 +30,7 @@ public class PayloadTypeIdentifier
         WarcParser.LineFeed,
     };
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PayloadTypeIdentifier"/> class.
-    /// </summary>
-    /// <param name="delimiter">A sequence of characters that identifies the start of a payload. If this is <c>null</c>, it defaults to two pairs of <c>CRLF</c>, which is the one commonly used by HTTP.</c></param>
-    public PayloadTypeIdentifier(int[]? delimiter = null)
-    {
-        Delimiter = delimiter ?? DefaultDelimiter;
-    }
-
-    public int[] Delimiter { get; }
+    public int[] Delimiter { get; } = delimiter ?? DefaultDelimiter;
 
     public static int IndexOfPayload(byte[] contentBlock, int[]? delimiter = null)
     {
@@ -78,6 +73,8 @@ public class PayloadTypeIdentifier
     /// </summary>
     /// <param name="contentBlock">The bytes representing the content block of a <see cref="Record"/>.</param>
     /// <returns>The start index of the payload or <c>-1</c> if none is found.</returns>
-    /// <remarks>The <paramref name="contentBlock"/> is searched to find the first occurrence of the <see cref="Delimiter"/>.</remarks>
+    /// <remarks>
+    /// The <paramref name="contentBlock"/> is searched to find the first occurrence of the <see cref="Delimiter"/>.
+    /// </remarks>
     public int IndexOfPayload(byte[] contentBlock) => IndexOfPayload(contentBlock, Delimiter);
 }

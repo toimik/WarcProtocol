@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,9 @@ namespace Toimik.WarcProtocol;
 using System.Security.Cryptography;
 using System.Text;
 
-public class DigestFactory
+public class DigestFactory(string hashName)
 {
-    public DigestFactory(string hashName)
-    {
-        HashName = hashName;
-    }
-
-    public string HashName { get; }
+    public string HashName { get; } = hashName;
 
     public virtual string CreateDigest(byte[] buffer)
     {

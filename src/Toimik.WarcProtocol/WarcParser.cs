@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,8 @@ using System.Threading.Tasks;
 /// <summary>
 /// Represents a parser for WARC files that are formatted according to version 1.1 and 1.0.
 /// </summary>
-/// <remarks>
-/// A WARC file consists of record(s) of several predefined types.
-/// </remarks>
-public sealed class WarcParser
+/// <remarks>A WARC file consists of record(s) of several predefined types.</remarks>
+public sealed class WarcParser(RecordFactory? recordFactory = null, CompressionStreamFactory? compressionStreamFactory = null)
 {
     internal const int CarriageReturn = 0xD;
 
@@ -52,15 +50,9 @@ public sealed class WarcParser
         "1.1",
     };
 
-    public WarcParser(RecordFactory? recordFactory = null, CompressionStreamFactory? compressionStreamFactory = null)
-    {
-        RecordFactory = recordFactory ?? new RecordFactory();
-        CompressionStreamFactory = compressionStreamFactory ?? new CompressionStreamFactory();
-    }
+    public CompressionStreamFactory CompressionStreamFactory { get; } = compressionStreamFactory ?? new CompressionStreamFactory();
 
-    public CompressionStreamFactory CompressionStreamFactory { get; }
-
-    public RecordFactory RecordFactory { get; }
+    public RecordFactory RecordFactory { get; } = recordFactory ?? new RecordFactory();
 
     /// <summary>
     /// Parses a file containing WARC record(s).
@@ -70,41 +62,31 @@ public sealed class WarcParser
     /// compressed with gzip either in its entirety or per record.
     /// </param>
     /// <param name="parseLog">
-    /// If <c>null</c>, parsing terminates immediately if an exception is thrown. Otherwise,
-    /// parsing continues but all errors and skipped chunks are passed to this
-    /// <see cref="IParseLog"/>.
+    /// If <c>null</c>, parsing terminates immediately if an exception is thrown. Otherwise, parsing
+    /// continues but all errors and skipped chunks are passed to this <see cref="IParseLog"/>.
     /// </param>
-    /// <param name="byteOffset">
-    /// Number of bytes to offset.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token to monitor for cancellation request.
-    /// </param>
-    /// <returns>
-    /// Parsed <see cref="Record"/>(s).
-    /// </returns>
+    /// <param name="byteOffset">Number of bytes to offset.</param>
+    /// <param name="cancellationToken">Optional token to monitor for cancellation request.</param>
+    /// <returns>Parsed <see cref="Record"/>(s).</returns>
     /// <remarks>
     /// A malformed warc file may have a Content-Length that does not match the content block's
-    /// length; The actual length may be shorter or longer. This introduces a complication if
-    /// the file has several uncompressed records or records that are compressed as a whole.
+    /// length; The actual length may be shorter or longer. This introduces a complication if the
+    /// file has several uncompressed records or records that are compressed as a whole.
     /// <para>
     /// This is because a content block that is shorter than its Content-Length causes the next
-    /// record's data, if any, to be appended to the current record's content block, thus
-    /// corrupting it. In turn, parsing the remainder of the next record, if any, causes an
-    /// exception, which is suppressed if <see cref="IParseLog"/> is specified. Consequently,
-    /// what remains of the next record is entirely discarded before parsing continues from the
-    /// subsequent record, if any.
+    /// record's data, if any, to be appended to the current record's content block, thus corrupting
+    /// it. In turn, parsing the remainder of the next record, if any, causes an exception, which is
+    /// suppressed if <see cref="IParseLog"/> is specified. Consequently, what remains of the next
+    /// record is entirely discarded before parsing continues from the subsequent record, if any.
     /// </para>
     /// <para>
     /// Similarly, a content block that is longer than its Content-Length corrupts the current
-    /// record's content block. This is due to a truncation that discards all remaining data up
-    /// to the beginning of the next record. The difference is that the next record, if any, is
-    /// unaffected.
+    /// record's content block. This is due to a truncation that discards all remaining data up to
+    /// the beginning of the next record. The difference is that the next record, if any, is unaffected.
     /// </para>
     /// <para>
     /// What this means is that <see cref="IParseLog"/> is useful only when used to parse files
-    /// containing one (compressed / uncompressed) record or multiple records that are
-    /// individually compressed.
+    /// containing one (compressed / uncompressed) record or multiple records that are individually compressed.
     /// </para>
     /// </remarks>
     public async IAsyncEnumerable<Record> Parse(
@@ -130,31 +112,21 @@ public sealed class WarcParser
     /// Similar to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> except that a
     /// stream and an indication of whether it is compressed is passed.
     /// </summary>
-    /// <param name="stream">
-    /// A <see cref="Stream"/> representing the content of a WARC file.
-    /// </param>
+    /// <param name="stream">A <see cref="Stream"/> representing the content of a WARC file.</param>
     /// <param name="isCompressed">
     /// An indication of whether <paramref name="stream"/> is GZip-ed compressed.
     /// </param>
     /// <param name="parseLog">
-    /// If <c>null</c>, parsing terminates immediately if an exception is thrown. Otherwise,
-    /// parsing continues but all errors and skipped chunks are passed to this
-    /// <see cref="IParseLog"/>.
+    /// If <c>null</c>, parsing terminates immediately if an exception is thrown. Otherwise, parsing
+    /// continues but all errors and skipped chunks are passed to this <see cref="IParseLog"/>.
     /// </param>
-    /// <param name="byteOffset">
-    /// Number of bytes to offset.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Optional token to monitor for cancellation request.
-    /// </param>
-    /// <returns>
-    /// Parsed <see cref="Record"/>(s).
-    /// </returns>
+    /// <param name="byteOffset">Number of bytes to offset.</param>
+    /// <param name="cancellationToken">Optional token to monitor for cancellation request.</param>
+    /// <returns>Parsed <see cref="Record"/>(s).</returns>
     /// <remarks>
     /// The stream is kept opened after processing.
     /// <para>
-    /// Refer to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> for additional
-    /// remarks.
+    /// Refer to <see cref="Parse(string, IParseLog, long, CancellationToken)"/> for additional remarks.
     /// </para>
     /// </remarks>
     public async IAsyncEnumerable<Record> Parse(

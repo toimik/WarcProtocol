@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-public abstract class Record
+public abstract class Record(
+    string version,
+    Uri recordId,
+    DateTime date,
+    IEnumerable<string> orderedFields,
+    string? truncatedReason = null,
+    DigestFactory? digestFactory = null)
 {
     public const string FieldForBlockDigest = "warc-block-digest";
 
@@ -34,42 +40,26 @@ public abstract class Record
 
     public const string FieldForType = "warc-type";
 
-    protected Record(
-        string version,
-        Uri recordId,
-        DateTime date,
-        IEnumerable<string> orderedFields,
-        string? truncatedReason = null,
-        DigestFactory? digestFactory = null)
-    {
-        Version = version.Trim();
-        Id = recordId;
-        Date = date;
-        OrderedFields = orderedFields;
-        TruncatedReason = truncatedReason;
-        DigestFactory = digestFactory;
-    }
-
     public string? BlockDigest { get; private set; }
 
     public int ContentLength { get; private set; }
 
-    public DateTime Date { get; private set; }
+    public DateTime Date { get; private set; } = date;
 
     /// <summary>
     /// The <see cref="DigestFactory"/>, if any, to be applied to the content block.
     /// </summary>
-    public DigestFactory? DigestFactory { get; }
+    public DigestFactory? DigestFactory { get; } = digestFactory;
 
-    public Uri Id { get; private set; }
+    public Uri Id { get; private set; } = recordId;
 
-    public IEnumerable<string> OrderedFields { get; }
+    public IEnumerable<string> OrderedFields { get; } = orderedFields;
 
-    public string? TruncatedReason { get; private set; }
+    public string? TruncatedReason { get; private set; } = truncatedReason;
 
     public abstract string Type { get; }
 
-    public string Version { get; }
+    public string Version { get; } = version.Trim();
 
     public abstract byte[]? GetBlockBytes();
 

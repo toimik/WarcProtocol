@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class LineReader
+public class LineReader(Stream stream, CancellationToken cancellationToken)
 {
     private static readonly IList<int> EolCharacters = new List<int>
     {
@@ -31,15 +31,9 @@ public class LineReader
         WarcParser.LineFeed,
     };
 
-    public LineReader(Stream stream, CancellationToken cancellationToken)
-    {
-        Stream = stream;
-        CancellationToken = cancellationToken;
-    }
+    public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public CancellationToken CancellationToken { get; }
-
-    public Stream Stream { get; }
+    public Stream Stream { get; } = stream;
 
     public async Task Offset(long byteOffset)
     {
@@ -66,8 +60,8 @@ public class LineReader
             var isEofEncountered = readCount == 0;
             if (isEofEncountered)
             {
-                // Treat EOF as per normal only if it is empty. Otherwise, it is assumed that
-                // the EOL characters are found.
+                // Treat EOF as per normal only if it is empty. Otherwise, it is assumed that the
+                // EOL characters are found.
                 if (readBytes.Count == 0)
                 {
                     readBytes = null;

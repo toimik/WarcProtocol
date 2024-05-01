@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2024 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,11 @@ namespace Toimik.WarcProtocol;
 
 using System;
 
-public class RecordFactory
+public class RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
 {
-    public RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
-    {
-        DigestFactory = digestFactory;
-        PayloadTypeIdentifier = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
-    }
+    public DigestFactory? DigestFactory { get; } = digestFactory;
 
-    public DigestFactory? DigestFactory { get; }
-
-    public PayloadTypeIdentifier PayloadTypeIdentifier { get; }
+    public PayloadTypeIdentifier PayloadTypeIdentifier { get; } = payloadTypeIdentifier ?? new PayloadTypeIdentifier();
 
     public virtual Record CreateRecord(
         string version,
