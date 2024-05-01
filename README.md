@@ -3,7 +3,7 @@
 
 # Toimik.WarcProtocol
 
-.NET 6 C# [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1) parser and writer.
+.NET 8 C# [WARC](https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1) parser and writer.
 
 ## Features
 
