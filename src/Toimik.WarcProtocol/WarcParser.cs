@@ -44,7 +44,7 @@ public sealed class WarcParser(RecordFactory? recordFactory = null, CompressionS
         Record.FieldForContentLength,
     };
 
-    private static readonly ISet<string> SupportedVersions = new HashSet<string>
+    private static readonly HashSet<string> SupportedVersions = new HashSet<string>
     {
         "1.0",
         "1.1",
