@@ -374,7 +374,7 @@ public class TestUtils
     private static string RenameFileExtension(string path, string extension)
     {
         var slashIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
-        var periodIndex = path.LastIndexOf(".");
+        var periodIndex = path.LastIndexOf('.');
         var length = periodIndex - slashIndex;
         var filename = path.Substring(slashIndex, length);
         var directory = path[..slashIndex];
