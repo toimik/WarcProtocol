@@ -957,9 +957,9 @@ public class WarcParserTest
 
     private class CustomParseLog : IParseLog
     {
-        public IList<string> Chunks { get; private set; } = new List<string>();
+        public IList<string> Chunks { get; private set; } = [];
 
-        public IList<string> Messages { get; private set; } = new List<string>();
+        public IList<string> Messages { get; private set; } = [];
 
         public void ChunkSkipped(string chunk)
         {

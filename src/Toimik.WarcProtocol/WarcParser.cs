@@ -44,11 +44,11 @@ public sealed class WarcParser(RecordFactory? recordFactory = null, CompressionS
         Record.FieldForContentLength,
     };
 
-    private static readonly HashSet<string> SupportedVersions = new HashSet<string>
-    {
+    private static readonly HashSet<string> SupportedVersions =
+    [
         "1.0",
         "1.1",
-    };
+    ];
 
     public CompressionStreamFactory CompressionStreamFactory { get; } = compressionStreamFactory ?? new CompressionStreamFactory();
 
