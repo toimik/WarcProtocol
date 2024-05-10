@@ -37,14 +37,24 @@ public class LineReader(Stream stream, CancellationToken cancellationToken)
 
     public async Task Offset(long byteOffset)
     {
-        // NOTE: This is naively done because seek is unsupported by the underlying class
-        for (long i = 0; i < byteOffset; i++)
+        if (Stream.CanSeek)
         {
-            var readCount = await Stream.ReadAsync(buffer: (new byte[1]).AsMemory(start: 0, length: 1)).ConfigureAwait(false);
-            var isEofEncountered = readCount == 0;
-            if (isEofEncountered)
+            Stream.Seek(byteOffset, SeekOrigin.Begin);
+        }
+        else
+        {
+            long bytePosition = 0;
+            var buffer = new byte[1024];
+            while (bytePosition < byteOffset)
             {
-                throw new ArgumentException("Offset exceeds file size.", nameof(byteOffset));
+                var remainingCount = (int)Math.Min(buffer.Length, byteOffset - bytePosition);
+                var byteCount = await Stream.ReadAsync(buffer.AsMemory(0, remainingCount)).ConfigureAwait(false);
+                if (byteCount == 0)
+                {
+                    break;
+                }
+
+                bytePosition += byteCount;
             }
         }
     }

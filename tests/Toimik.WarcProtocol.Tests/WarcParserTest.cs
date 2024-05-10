@@ -338,16 +338,21 @@ public class WarcParserTest
         Assert.Equal("A", Encoding.UTF8.GetString(record.RecordBlock!));
     }
 
+    // NOTE: This is no longer needed due to the inclusion of Stream.Seek(...) in LineReader that
+    //       allows for an offset beyond the length of the stream.
+    /*
     [Fact]
     public async Task OffsetOverLimit()
     {
         var parser = new WarcParser();
         var path = $"{DirectoryForInvalidRecords}incorrect_content_length.warc";
 
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await parser.Parse(path, byteOffset: 1000).ToListAsync());
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await
+        parser.Parse(path, byteOffset: 1000).ToListAsync());
 
         Assert.Contains("Offset exceeds file size", exception.Message);
     }
+    */
 
     [Fact]
     public async Task OffsetUnderLimit()
