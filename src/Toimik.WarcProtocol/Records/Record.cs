@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace Toimik.WarcProtocol;
+namespace Toimik.WarcProtocol.Records;
 
 using System;
 using System.Collections.Generic;

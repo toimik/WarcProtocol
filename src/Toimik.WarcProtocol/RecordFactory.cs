@@ -17,6 +17,7 @@
 namespace Toimik.WarcProtocol;
 
 using System;
+using Toimik.WarcProtocol.Records;
 
 public class RecordFactory(DigestFactory? digestFactory = null, PayloadTypeIdentifier? payloadTypeIdentifier = null)
 {

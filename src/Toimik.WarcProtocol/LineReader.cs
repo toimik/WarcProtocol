@@ -113,7 +113,7 @@ public class LineReader(Stream stream, CancellationToken cancellationToken)
 
         var line = readBytes == null
             ? null
-            : Encoding.UTF8.GetString(readBytes.ToArray());
+            : Encoding.UTF8.GetString([.. readBytes]);
         return line;
     }
 }

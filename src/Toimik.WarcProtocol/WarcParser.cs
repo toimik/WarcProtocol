@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Toimik.WarcProtocol.Records;
 
 /// <summary>
 /// Represents a parser for WARC files that are formatted according to version 1.1 and 1.0.

@@ -1,6 +1,7 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
 using System;
+using Toimik.WarcProtocol.Records;
 using Xunit;
 
 public class WarcinfoRecordTest

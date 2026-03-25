@@ -16,6 +16,8 @@
 
 namespace Toimik.WarcProtocol;
 
+using Toimik.WarcProtocol.Records;
+
 /// <summary> Initializes a new instance of the <see cref="PayloadTypeIdentifier"/> class.
 /// </summary> <param name="delimiter">A sequence of characters that identifies the start of a
 /// payload. If this is <c>null</c>, it defaults to two pairs of <c>CRLF</c>, which is the one

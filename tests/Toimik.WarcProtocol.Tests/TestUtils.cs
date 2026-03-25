@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Toimik.WarcProtocol.Records;
 using Xunit;
 
 public class TestUtils
@@ -310,7 +311,7 @@ public class TestUtils
     {
         var recordCounter = 0;
         var parser = new WarcParser(compressionStreamFactory: compressionStreamFactory);
-        await foreach (WarcProtocol.Record record in parser.Parse(path).ConfigureAwait(false))
+        await foreach (var record in parser.Parse(path).ConfigureAwait(false))
         {
             switch (record.Type)
             {

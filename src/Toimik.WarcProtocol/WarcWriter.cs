@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using Toimik.WarcProtocol.Records;
 
 /// <summary>
 /// Represents a writer for WARC files that are formatted according to version 1.1 and 1.0.

@@ -149,6 +149,10 @@ csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 dotnet_diagnostic.SA1010.severity = none
+
+# SA1011: Closing square brackets should be spaced correctly
+dotnet_diagnostic.SA1011.severity = none
+
 [*Test.cs]
 # SA1600: Elements should be documented
 dotnet_diagnostic.SA1600.severity = none

@@ -1,6 +1,5 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
-using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ICSharpCode.SharpZipLib.GZip;
+using Toimik.WarcProtocol.Records;
 using Xunit;
 
 public class WarcParserTest
@@ -22,8 +23,8 @@ public class WarcParserTest
 
     private static readonly string DirectoryForValid1Point1Records = $"Data{Path.DirectorySeparatorChar}Valid{Path.DirectorySeparatorChar}1.1{Path.DirectorySeparatorChar}";
 
-    private static readonly ISet<string> MergeFilenames = new HashSet<string>
-    {
+    private static readonly HashSet<string> MergeFilenames =
+    [
         "continuation.warc",
         "conversion.warc",
         "metadata.warc",
@@ -33,7 +34,7 @@ public class WarcParserTest
         "revisit_identical.warc",
         "revisit_unmodified.warc",
         "warcinfo.warc",
-    };
+    ];
 
     [Fact]
     public async Task ExceptionDueToLongerContentLengthButIsSuppressed()
@@ -189,7 +190,7 @@ public class WarcParserTest
         var records = parser.Parse(path, parseLog);
 
         var index = 0;
-        await foreach (WarcProtocol.Record record in records)
+        await foreach (var record in records)
         {
             var expectedContent = expectedContents[index];
             var actualContent = Encoding.UTF8.GetString(((ResourceRecord)record).RecordBlock!);
@@ -339,7 +340,7 @@ public class WarcParserTest
     }
 
     // NOTE: This is no longer needed due to the inclusion of Stream.Seek(...) in LineReader that
-    //       allows for an offset beyond the length of the stream.
+    // allows for an offset beyond the length of the stream.
     /*
     [Fact]
     public async Task OffsetOverLimit()
@@ -415,8 +416,9 @@ public class WarcParserTest
         var orderedFields = ContinuationRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -471,8 +473,9 @@ public class WarcParserTest
         var orderedFields = ConversionRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -526,8 +529,9 @@ public class WarcParserTest
         var orderedFields = MetadataRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -582,8 +586,9 @@ public class WarcParserTest
         var orderedFields = RequestRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -639,8 +644,9 @@ public class WarcParserTest
         var orderedFields = ResourceRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -696,8 +702,9 @@ public class WarcParserTest
         var orderedFields = ResponseRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -754,8 +761,9 @@ public class WarcParserTest
         var orderedFields = RevisitRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -818,8 +826,9 @@ public class WarcParserTest
         var orderedFields = RevisitRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -864,8 +873,9 @@ public class WarcParserTest
         var orderedFields = WarcinfoRecord.DefaultOrderedFields;
         if (isWithoutBlockDigest)
         {
-            orderedFields = new List<string>(orderedFields);
-            ((List<string>)orderedFields).Remove(WarcProtocol.Record.FieldForBlockDigest);
+            var list = new List<string>(orderedFields);
+            list.Remove(Records.Record.FieldForBlockDigest);
+            orderedFields = list;
         }
 
         var fields = AssertHeaderAndToString(actualRecord, orderedFields);
@@ -876,7 +886,7 @@ public class WarcParserTest
         Assert.Equal(expectedHeader, actualHeader);
     }
 
-    private static List<string> AssertHeaderAndToString(WarcProtocol.Record record, IEnumerable<string> defaultOrderedFields)
+    private static List<string> AssertHeaderAndToString(Records.Record record, IEnumerable<string> defaultOrderedFields)
     {
         var expectedHeader = record.GetHeader();
         var expectedHeaderTokens = expectedHeader.Split(WarcParser.CrLf, StringSplitOptions.RemoveEmptyEntries);

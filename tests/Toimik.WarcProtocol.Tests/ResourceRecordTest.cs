@@ -2,6 +2,7 @@
 
 using System;
 using System.Text;
+using Toimik.WarcProtocol.Records;
 using Xunit;
 
 public class ResourceRecordTest

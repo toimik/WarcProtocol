@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Toimik.WarcProtocol.Records;
 using Xunit;
 
 public class ResponseRecordTest

@@ -16,7 +16,7 @@
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Toimik.WarcProtocol.Tests")]
 
-namespace Toimik.WarcProtocol;
+namespace Toimik.WarcProtocol.Records;
 
 using System;
 using System.Collections.Generic;

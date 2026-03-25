@@ -16,6 +16,8 @@
 
 namespace Toimik.WarcProtocol;
 
+using Toimik.WarcProtocol.Records;
+
 public class ContentTypeIdentifier
 {
     public ContentTypeIdentifier()

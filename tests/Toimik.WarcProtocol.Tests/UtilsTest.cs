@@ -1,18 +1,17 @@
 ﻿namespace Toimik.WarcProtocol.Tests;
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
 public class UtilsTest
 {
-    public static IEnumerable<object[]> PayloadData =>
-    [
-        [-1, $"foobar",],
-        [3, $"foo{WarcParser.CrLf}{WarcParser.CrLf}bar",],
-        [6, $"foobar{WarcParser.CrLf}{WarcParser.CrLf}fuzz",],
-    ];
+    public static Xunit.TheoryData<int, string> PayloadData => new()
+    {
+        { -1, "foobar" },
+        { 3, $"foo{WarcParser.CrLf}{WarcParser.CrLf}bar" },
+        { 6, $"foobar{WarcParser.CrLf}{WarcParser.CrLf}fuzz" },
+    };
 
     [Fact]
     public void AddBracketsToUriWithUriThatIsNull()
