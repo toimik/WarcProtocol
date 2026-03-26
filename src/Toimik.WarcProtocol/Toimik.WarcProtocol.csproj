@@ -6,7 +6,7 @@
     <AssemblyName>Toimik.WarcProtocol</AssemblyName>
     <PackageVersion>0.11.0</PackageVersion>
     <Authors>Nurhafiz</Authors>
-    <Version>0.11.0</Version>
+    <Version>0.11.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Company>Toimik</Company>
     <Description>
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>

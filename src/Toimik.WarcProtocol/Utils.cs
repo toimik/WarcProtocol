@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2021-2023 nurhafiz@hotmail.sg
+ * Copyright 2021-2026 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,9 +114,9 @@ public class Utils
                     && !existingValue.Equals(value);
                 if (isErrorEncountered)
                 {
-                    // Except for WARC-Concurrent-To, having duplicate header fields is
-                    // disallowed. If the value is the same, there is no need to add it again.
-                    // Otherwise, an exception is thrown.
+                    // Except for WARC-Concurrent-To, having duplicate header fields is disallowed.
+                    // If the value is the same, there is no need to add it again. Otherwise, an
+                    // exception is thrown.
                     var text = $"Duplicate header: {line}";
                     throw new FormatException(text);
                 }

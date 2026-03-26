@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright 2023 https://github.com/acidus99
- * Copyright 2023 nurhafiz@hotmail.sg
+ * Copyright 2023-2026 nurhafiz@hotmail.sg
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,13 @@ public class WarcWriter : IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="WarcWriter"/> class.
     /// </summary>
-    /// <param name="filePath">The full path of the WARC file to create. If the filename has a .gz extension, we will use per-record GZIP compression.</param>
-    /// <param name="isForcedCompression">Use per-record GZIP compression, regardless of the WARC's file extenion.</param>
+    /// <param name="filePath">
+    /// The full path of the WARC file to create. If the filename has a .gz extension, we will use
+    /// per-record GZIP compression.
+    /// </param>
+    /// <param name="isForcedCompression">
+    /// Use per-record GZIP compression, regardless of the WARC's file extenion.
+    /// </param>
     /// <exception cref="ArgumentNullException">If the path to the WARC file is null or empty.</exception>
     /// <remarks>Validates output WARC can be written and sets up needed variables.</remarks>
     public WarcWriter(string filePath, bool isForcedCompression = false)
@@ -85,8 +90,10 @@ public class WarcWriter : IDisposable
     /// <summary>
     /// Gets, for this instance, an indication of whether per-record GZIP compression is used.
     /// </summary>
-    /// <remarks>This is controlled by the file extension of the WARC or via the
-    /// <c>isForcedComparession</c> parameter that is passed to the constructor.</remarks>
+    /// <remarks>
+    /// This is controlled by the file extension of the WARC or via the <c>isForcedComparession</c>
+    /// parameter that is passed to the constructor.
+    /// </remarks>
     public bool IsCompressed { get; private set; }
 
     /// <summary>
