@@ -16,17 +16,13 @@
 
 namespace Toimik.WarcProtocol;
 
-using ICSharpCode.SharpZipLib.GZip;
 using System.IO;
+using System.IO.Compression;
 
 public class CompressionStreamFactory
 {
-    public CompressionStreamFactory()
-    {
-    }
-
     public virtual Stream CreateDecompressStream(Stream stream)
     {
-        return new GZipInputStream(stream);
+        return new GZipStream(stream, CompressionMode.Decompress);
     }
 }
